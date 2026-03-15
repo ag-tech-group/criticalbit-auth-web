@@ -12,12 +12,10 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { api, baseUrl } from "@/api/api"
+import { api } from "@/api/api"
 import { getErrorMessage } from "@/lib/api-errors"
-import { useAuth } from "@/lib/auth"
 
 export function LoginPage() {
-  const auth = useAuth()
   const search = useSearch({ from: "/login" })
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -34,8 +32,9 @@ export function LoginPage() {
         body: new URLSearchParams({ username: email, password }),
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       })
-      auth.login(email)
-      // Navigation happens via route guard detecting isAuthenticated
+      // Hard redirect — reloads the page so AuthProvider picks up the new cookie cleanly.
+      // Client-side navigate has a race condition with the onUnauthorized handler.
+      window.location.href = redirect ?? "/profile"
     } catch (error) {
       const message = await getErrorMessage(error, "Login failed")
       toast.error(message)
@@ -44,11 +43,19 @@ export function LoginPage() {
     }
   }
 
-  function handleGoogleLogin() {
-    const redirectParam = redirect
-      ? `?redirect=${encodeURIComponent(redirect)}`
-      : ""
-    window.location.href = `${baseUrl}/auth/google/authorize${redirectParam}`
+  async function handleGoogleLogin() {
+    try {
+      const res = await api
+        .get("auth/google/authorize")
+        .json<{ authorization_url: string }>()
+      window.location.href = res.authorization_url
+    } catch (error) {
+      const message = await getErrorMessage(
+        error,
+        "Failed to start Google sign-in"
+      )
+      toast.error(message)
+    }
   }
 
   return (

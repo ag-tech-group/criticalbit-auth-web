@@ -1,18 +1,40 @@
-import { useEffect } from "react"
-import { useNavigate } from "@tanstack/react-router"
-import { useAuth } from "@/lib/auth"
+import { useEffect, useRef, useState } from "react"
+import { baseUrl } from "@/api/api"
 
 export function GoogleCallbackPage() {
-  const auth = useAuth()
-  const navigate = useNavigate()
+  const [error, setError] = useState<string | null>(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (!params.get("code") || !params.get("state")) {
+      return "Missing authorization parameters"
+    }
+    return null
+  })
+  const calledRef = useRef(false)
 
   useEffect(() => {
-    // After Google OAuth, the auth API has already set the JWT cookie.
-    // We just need to check auth state and redirect.
-    auth.checkAuth().then(() => {
-      navigate({ to: "/profile" })
+    if (error || calledRef.current) return
+    calledRef.current = true
+
+    fetch(`${baseUrl}/auth/google/callback${window.location.search}`, {
+      method: "GET",
+      credentials: "include",
     })
-  }, [auth, navigate])
+      .then((res) => {
+        if (!res.ok) throw new Error(`Auth failed: ${res.status}`)
+        window.location.href = "/profile"
+      })
+      .catch(() => {
+        setError("Google sign-in failed. Please try again.")
+      })
+  }, [error])
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-destructive">{error}</p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center">
