@@ -26,7 +26,10 @@ export function ProfilePage() {
           <Button
             variant="outline"
             className="w-full"
-            onClick={() => auth.logout()}
+            onClick={async () => {
+              await auth.logout()
+              window.location.href = "/login"
+            }}
           >
             Sign out
           </Button>
