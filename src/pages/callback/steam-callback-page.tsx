@@ -35,14 +35,14 @@ export function SteamCallbackPage() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex flex-1 items-center justify-center">
         <p className="text-destructive">{error}</p>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex flex-1 items-center justify-center">
       <p className="text-muted-foreground">Completing Steam sign in...</p>
     </div>
   )
