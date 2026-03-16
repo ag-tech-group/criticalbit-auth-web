@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Link, useSearch } from "@tanstack/react-router"
+import { LoaderCircle } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -109,7 +110,8 @@ export function LoginPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              Sign in
+              {isSubmitting && <LoaderCircle className="animate-spin" />}
             </Button>
           </form>
 
