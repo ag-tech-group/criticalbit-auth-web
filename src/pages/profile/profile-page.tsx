@@ -11,7 +11,7 @@ export function ProfilePage() {
   const auth = useAuth()
 
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-4">
+    <div className="flex flex-1 items-center justify-center px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <div className="bg-primary text-primary-foreground mx-auto mb-2 flex size-16 items-center justify-center rounded-full text-2xl font-medium">
