@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router"
 import { Toaster } from "sonner"
 import { RootErrorComponent } from "@/components/error-boundary"
+import { Navbar } from "@/components/navbar"
 import { NotFound } from "@/components/not-found"
 import { useAnalytics } from "@/lib/analytics"
 
@@ -60,7 +61,10 @@ function RootComponent() {
   return (
     <>
       <RouteTracker />
-      <Outlet />
+      <Navbar />
+      <div className="pt-14">
+        <Outlet />
+      </div>
       <Toaster position="bottom-right" richColors closeButton />
       <Suspense fallback={null}>
         <TanStackRouterDevtools />
