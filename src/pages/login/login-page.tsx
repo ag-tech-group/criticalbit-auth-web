@@ -58,6 +58,21 @@ export function LoginPage() {
     }
   }
 
+  async function handleSteamLogin() {
+    try {
+      const res = await api
+        .get("auth/steam/authorize")
+        .json<{ authorization_url: string }>()
+      window.location.href = res.authorization_url
+    } catch (error) {
+      const message = await getErrorMessage(
+        error,
+        "Failed to start Steam sign-in"
+      )
+      toast.error(message)
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-sm">
@@ -114,13 +129,22 @@ export function LoginPage() {
             </div>
           </div>
 
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleGoogleLogin}
-          >
-            Sign in with Google
-          </Button>
+          <div className="grid gap-2">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleGoogleLogin}
+            >
+              Sign in with Google
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleSteamLogin}
+            >
+              Sign in with Steam
+            </Button>
+          </div>
         </CardContent>
         <CardFooter className="justify-center">
           <p className="text-muted-foreground text-sm">

@@ -15,6 +15,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CallbackSteamRouteImport } from './routes/callback/steam'
 import { Route as CallbackGoogleRouteImport } from './routes/callback/google'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -47,6 +48,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CallbackSteamRoute = CallbackSteamRouteImport.update({
+  id: '/callback/steam',
+  path: '/callback/steam',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CallbackGoogleRoute = CallbackGoogleRouteImport.update({
   id: '/callback/google',
   path: '/callback/google',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/callback/google': typeof CallbackGoogleRoute
+  '/callback/steam': typeof CallbackSteamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/callback/google': typeof CallbackGoogleRoute
+  '/callback/steam': typeof CallbackSteamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/callback/google': typeof CallbackGoogleRoute
+  '/callback/steam': typeof CallbackSteamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/callback/google'
+    | '/callback/steam'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/callback/google'
+    | '/callback/steam'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/callback/google'
+    | '/callback/steam'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   CallbackGoogleRoute: typeof CallbackGoogleRoute
+  CallbackSteamRoute: typeof CallbackSteamRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/callback/steam': {
+      id: '/callback/steam'
+      path: '/callback/steam'
+      fullPath: '/callback/steam'
+      preLoaderRoute: typeof CallbackSteamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/callback/google': {
       id: '/callback/google'
       path: '/callback/google'
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   CallbackGoogleRoute: CallbackGoogleRoute,
+  CallbackSteamRoute: CallbackSteamRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
