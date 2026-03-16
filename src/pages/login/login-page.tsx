@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { api } from "@/api/api"
+import { api, baseUrl } from "@/api/api"
 import { getErrorMessage } from "@/lib/api-errors"
 
 export function LoginPage() {
@@ -58,19 +58,10 @@ export function LoginPage() {
     }
   }
 
-  async function handleSteamLogin() {
-    try {
-      const res = await api
-        .get("auth/steam/authorize")
-        .json<{ authorization_url: string }>()
-      window.location.href = res.authorization_url
-    } catch (error) {
-      const message = await getErrorMessage(
-        error,
-        "Failed to start Steam sign-in"
-      )
-      toast.error(message)
-    }
+  function handleSteamLogin() {
+    // In production, the authorize endpoint returns a 307 redirect to Steam,
+    // so we navigate directly instead of fetching (avoids CSP issues).
+    window.location.href = `${baseUrl}/auth/steam/authorize`
   }
 
   return (
