@@ -8,6 +8,8 @@ const unauthContext = {
     isLoading: false,
     email: null,
     userId: null,
+    displayName: null,
+    avatarUrl: null,
     login: () => {},
     logout: async () => {},
     checkAuth: async () => {},

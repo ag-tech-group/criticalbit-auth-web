@@ -1,6 +1,7 @@
 import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { UserAvatar } from "@/components/user-avatar"
 import { useAuth } from "@/lib/auth"
 
 export function Navbar() {
@@ -21,11 +22,9 @@ export function Navbar() {
           {auth.isAuthenticated && (
             <>
               <div className="flex items-center gap-2">
-                <div className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-full text-xs font-medium">
-                  {auth.email?.charAt(0).toUpperCase() ?? "?"}
-                </div>
+                <UserAvatar size="sm" />
                 <span className="text-muted-foreground hidden text-sm sm:inline">
-                  {auth.email}
+                  {auth.displayName ?? auth.email}
                 </span>
               </div>
               <Button
