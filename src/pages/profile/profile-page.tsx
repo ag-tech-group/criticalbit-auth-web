@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/lib/auth"
 
 export function ProfilePage() {
@@ -20,16 +14,11 @@ export function ProfilePage() {
           <CardTitle className="font-pixel text-2xl tracking-wide">
             Profile
           </CardTitle>
-          <CardDescription>{auth.email}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3">
           <div className="grid gap-1 text-sm">
             <span className="text-muted-foreground">Email</span>
             <span>{auth.email}</span>
-          </div>
-          <div className="grid gap-1 text-sm">
-            <span className="text-muted-foreground">Role</span>
-            <span className="text-accent font-medium">User</span>
           </div>
         </CardContent>
       </Card>
