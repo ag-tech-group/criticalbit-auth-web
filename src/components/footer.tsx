@@ -4,7 +4,7 @@ export function Footer() {
   return (
     <footer className="border-border/50 border-t px-4 py-3">
       <div className="text-muted-foreground flex items-center justify-between text-xs">
-        <p>&copy; {year} CriticalBit. All rights reserved.</p>
+        <p>&copy; {year} AG Technology Group LLC. All rights reserved.</p>
         <div className="flex gap-4">
           <a
             href="https://criticalbit.gg"
