@@ -68,7 +68,9 @@ export function LoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Sign in</CardTitle>
+          <CardTitle className="font-pixel text-3xl tracking-wide">
+            Sign in
+          </CardTitle>
           <CardDescription>
             Sign in to your criticalbit.gg account
           </CardDescription>
@@ -92,7 +94,7 @@ export function LoginPage() {
                 <Label htmlFor="password">Password</Label>
                 <Link
                   to="/forgot-password"
-                  className="text-muted-foreground hover:text-primary text-xs underline"
+                  className="text-muted-foreground hover:text-accent text-xs underline"
                 >
                   Forgot password?
                 </Link>
@@ -166,7 +168,7 @@ export function LoginPage() {
         <CardFooter className="justify-center">
           <p className="text-muted-foreground text-sm">
             Don't have an account?{" "}
-            <Link to="/register" className="text-primary underline">
+            <Link to="/register" className="text-accent underline">
               Sign up
             </Link>
           </p>
