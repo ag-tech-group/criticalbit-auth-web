@@ -129,7 +129,7 @@ export function LoginPage() {
           <div className="grid gap-2">
             <Button
               variant="outline"
-              className="w-full"
+              className="hover:bg-accent/10 hover:text-accent-foreground w-full"
               onClick={handleGoogleLogin}
             >
               <svg className="size-4" viewBox="0 0 24 24" aria-hidden="true">
@@ -154,7 +154,7 @@ export function LoginPage() {
             </Button>
             <Button
               variant="outline"
-              className="w-full"
+              className="hover:bg-accent/10 hover:text-accent-foreground w-full"
               onClick={handleSteamLogin}
             >
               <svg
