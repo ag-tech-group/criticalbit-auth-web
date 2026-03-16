@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { UserAvatar } from "@/components/user-avatar"
 import { api } from "@/api/api"
 import { getErrorMessage } from "@/lib/api-errors"
 import { useAuth } from "@/lib/auth"
@@ -36,8 +37,8 @@ export function ProfilePage() {
     <div className="flex flex-1 items-center justify-center px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <div className="bg-primary text-primary-foreground mx-auto mb-2 flex size-16 items-center justify-center rounded-full text-2xl font-medium">
-            {auth.email?.charAt(0).toUpperCase() ?? "?"}
+          <div className="mx-auto mb-2">
+            <UserAvatar size="lg" />
           </div>
           <CardTitle className="font-pixel text-2xl tracking-wide">
             Profile
