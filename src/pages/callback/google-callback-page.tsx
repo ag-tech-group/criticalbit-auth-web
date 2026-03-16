@@ -21,7 +21,9 @@ export function GoogleCallbackPage() {
     })
       .then((res) => {
         if (!res.ok) throw new Error(`Auth failed: ${res.status}`)
-        window.location.href = "/profile"
+        const savedRedirect = localStorage.getItem("auth_redirect")
+        localStorage.removeItem("auth_redirect")
+        window.location.href = savedRedirect ?? "/profile"
       })
       .catch(() => {
         setError("Google sign-in failed. Please try again.")

@@ -26,7 +26,9 @@ export function SteamCallbackPage() {
           return
         }
         if (!res.ok) throw new Error(`Auth failed: ${res.status}`)
-        window.location.href = "/profile"
+        const savedRedirect = localStorage.getItem("auth_redirect")
+        localStorage.removeItem("auth_redirect")
+        window.location.href = savedRedirect ?? "/profile"
       })
       .catch(() => {
         setError("Steam sign-in failed. Please try again.")

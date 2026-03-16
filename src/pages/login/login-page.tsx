@@ -46,6 +46,7 @@ export function LoginPage() {
 
   async function handleGoogleLogin() {
     try {
+      if (redirect) localStorage.setItem("auth_redirect", redirect)
       const res = await api
         .get("auth/google/authorize")
         .json<{ authorization_url: string }>()
@@ -60,6 +61,7 @@ export function LoginPage() {
   }
 
   function handleSteamLogin() {
+    if (redirect) localStorage.setItem("auth_redirect", redirect)
     // In production, the authorize endpoint returns a 307 redirect to Steam,
     // so we navigate directly instead of fetching (avoids CSP issues).
     window.location.href = `${baseUrl}/auth/steam/authorize`
