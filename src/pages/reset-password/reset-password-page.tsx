@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Link, useSearch } from "@tanstack/react-router"
+import { LoaderCircle } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -129,7 +130,8 @@ export function ResetPasswordPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Resetting..." : "Reset password"}
+              Reset password
+              {isSubmitting && <LoaderCircle className="animate-spin" />}
             </Button>
           </form>
         </CardContent>

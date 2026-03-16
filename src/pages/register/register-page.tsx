@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Link, useNavigate } from "@tanstack/react-router"
+import { LoaderCircle } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -97,7 +98,8 @@ export function RegisterPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Creating account..." : "Create account"}
+              Create account
+              {isSubmitting && <LoaderCircle className="animate-spin" />}
             </Button>
           </form>
         </CardContent>
