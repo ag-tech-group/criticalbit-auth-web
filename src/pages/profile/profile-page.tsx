@@ -18,7 +18,7 @@ export function ProfilePage() {
 
   async function handleDelete(e: React.FormEvent) {
     e.preventDefault()
-    if (confirmEmail !== auth.email) return
+    if (confirmEmail !== "DELETE") return
 
     setIsDeleting(true)
     try {
@@ -58,18 +58,18 @@ export function ProfilePage() {
               <form onSubmit={handleDelete} className="mt-3 grid gap-3">
                 <p className="text-muted-foreground text-xs">
                   This permanently deletes your account and all data. This
-                  cannot be undone. Type your email to confirm.
+                  cannot be undone.
                 </p>
                 <div className="grid gap-1">
-                  <Label htmlFor="confirm-email" className="text-xs">
-                    Type <strong>{auth.email}</strong> to confirm
+                  <Label htmlFor="confirm-delete" className="text-xs">
+                    Type <strong>DELETE</strong> to confirm
                   </Label>
                   <Input
-                    id="confirm-email"
-                    type="email"
+                    id="confirm-delete"
+                    type="text"
                     value={confirmEmail}
                     onChange={(e) => setConfirmEmail(e.target.value)}
-                    placeholder={auth.email ?? ""}
+                    placeholder="DELETE"
                     autoComplete="off"
                   />
                 </div>
@@ -90,7 +90,7 @@ export function ProfilePage() {
                     type="submit"
                     variant="destructive"
                     size="sm"
-                    disabled={isDeleting || confirmEmail !== auth.email}
+                    disabled={isDeleting || confirmEmail !== "DELETE"}
                   >
                     Delete account
                     {isDeleting && <LoaderCircle className="animate-spin" />}

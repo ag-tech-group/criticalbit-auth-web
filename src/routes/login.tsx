@@ -9,9 +9,14 @@ export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>): LoginSearch => ({
     redirect: (search.redirect as string) || undefined,
   }),
-  beforeLoad: ({ context }) => {
+  beforeLoad: ({ context, search }) => {
     if (context.auth.isAuthenticated) {
-      throw redirect({ to: "/profile" })
+      const target = (search as LoginSearch).redirect
+      if (target && target.startsWith("http")) {
+        window.location.href = target
+        return
+      }
+      throw redirect({ to: target ?? "/profile" })
     }
   },
   component: LoginPage,
