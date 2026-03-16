@@ -7,6 +7,8 @@ import { RouterProvider, createRouter } from "@tanstack/react-router"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { toast } from "sonner"
+// @ts-expect-error -- fontsource CSS-only import, no types
+import "@fontsource-variable/geist"
 import { ThemeProvider } from "./components/theme-provider"
 import "./index.css"
 import { AnalyticsProvider } from "./lib/analytics"
@@ -65,7 +67,7 @@ function App() {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="system" storageKey="app_theme">
+      <ThemeProvider defaultTheme="dark" storageKey="app_theme">
         <AuthProvider>
           <AnalyticsProvider>
             <FeatureFlagProvider>
