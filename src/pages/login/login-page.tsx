@@ -97,7 +97,7 @@ export function LoginPage() {
                 <Label htmlFor="password">Password</Label>
                 <Link
                   to="/forgot-password"
-                  className="text-muted-foreground hover:text-accent text-xs underline"
+                  className="text-muted-foreground hover:text-primary text-xs underline"
                 >
                   Forgot password?
                 </Link>
@@ -129,7 +129,7 @@ export function LoginPage() {
           <div className="grid gap-2">
             <Button
               variant="outline"
-              className="hover:bg-accent/10 hover:text-accent-foreground w-full"
+              className="w-full"
               onClick={handleGoogleLogin}
             >
               <svg className="size-4" viewBox="0 0 24 24" aria-hidden="true">
@@ -154,7 +154,7 @@ export function LoginPage() {
             </Button>
             <Button
               variant="outline"
-              className="hover:bg-accent/10 hover:text-accent-foreground w-full"
+              className="w-full"
               onClick={handleSteamLogin}
             >
               <svg
@@ -172,7 +172,7 @@ export function LoginPage() {
         <CardFooter className="justify-center">
           <p className="text-muted-foreground text-sm">
             Don't have an account?{" "}
-            <Link to="/register" className="text-accent underline">
+            <Link to="/register" className="text-primary underline">
               Sign up
             </Link>
           </p>
