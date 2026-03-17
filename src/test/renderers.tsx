@@ -23,6 +23,7 @@ interface RenderWithFileRoutesOptions extends Omit<RenderOptions, "wrapper"> {
       userId: string | null
       displayName: string | null
       avatarUrl: string | null
+      tosAcceptedAt: string | null
       login: (email: string) => void
       logout: () => Promise<void>
       checkAuth: () => Promise<void>
@@ -37,6 +38,7 @@ const defaultAuth = {
   userId: "test-user-id",
   displayName: null,
   avatarUrl: null,
+  tosAcceptedAt: null,
   login: () => {},
   logout: async () => {},
   checkAuth: async () => {},

@@ -18,6 +18,7 @@ interface AuthContextValue {
   userId: string | null
   displayName: string | null
   avatarUrl: string | null
+  tosAcceptedAt: string | null
   login: (email: string) => void
   logout: () => Promise<void>
   checkAuth: () => Promise<void>
@@ -35,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = useState<string | null>(null)
   const [displayName, setDisplayName] = useState<string | null>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [tosAcceptedAt, setTosAcceptedAt] = useState<string | null>(null)
 
   const clearState = useCallback(() => {
     localStorage.removeItem(EMAIL_KEY)
@@ -42,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setEmail(null)
     setUserId(null)
     setDisplayName(null)
+    setTosAcceptedAt(null)
     setAvatarUrl(null)
     queryClient.clear()
   }, [queryClient])
@@ -68,12 +71,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: string
         display_name: string | null
         avatar_url: string | null
+        tos_accepted_at: string | null
       }>()
       setIsAuthenticated(true)
       setEmail(user.email)
       setUserId(user.id)
       setDisplayName(user.display_name)
       setAvatarUrl(user.avatar_url)
+      setTosAcceptedAt(user.tos_accepted_at)
       localStorage.setItem(EMAIL_KEY, user.email)
     } catch {
       clearState()
@@ -100,6 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       userId,
       displayName,
       avatarUrl,
+      tosAcceptedAt,
       login,
       logout,
       checkAuth,
@@ -111,6 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       userId,
       displayName,
       avatarUrl,
+      tosAcceptedAt,
       login,
       logout,
       checkAuth,
