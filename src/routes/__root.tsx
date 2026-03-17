@@ -37,6 +37,7 @@ interface RouterContext {
     userId: string | null
     displayName: string | null
     avatarUrl: string | null
+    tosAcceptedAt: string | null
     login: (email: string) => void
     logout: () => Promise<void>
     checkAuth: () => Promise<void>

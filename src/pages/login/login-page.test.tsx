@@ -10,6 +10,7 @@ const unauthContext = {
     userId: null,
     displayName: null,
     avatarUrl: null,
+    tosAcceptedAt: null,
     login: () => {},
     logout: async () => {},
     checkAuth: async () => {},
