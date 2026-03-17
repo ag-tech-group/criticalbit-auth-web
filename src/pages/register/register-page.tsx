@@ -1,8 +1,9 @@
 import { useState } from "react"
-import { Link, useNavigate } from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router"
 import { LoaderCircle } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Card,
   CardContent,
@@ -17,10 +18,10 @@ import { api } from "@/api/api"
 import { getErrorMessage } from "@/lib/api-errors"
 
 export function RegisterPage() {
-  const navigate = useNavigate()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [tosAccepted, setTosAccepted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -42,8 +43,14 @@ export function RegisterPage() {
       await api.post("auth/register", {
         json: { email, password },
       })
-      toast.success("Account created! Please sign in.")
-      navigate({ to: "/login" })
+      // Auto-login after registration
+      await api.post("auth/jwt/login", {
+        body: new URLSearchParams({ username: email, password }),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      })
+      // Record ToS acceptance while authenticated
+      await api.post("auth/accept-tos")
+      window.location.href = "/profile"
     } catch (error) {
       const message = await getErrorMessage(error, "Registration failed")
       toast.error(message)
@@ -97,7 +104,39 @@ export function RegisterPage() {
                 autoComplete="new-password"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <label className="flex cursor-pointer items-start gap-3">
+              <Checkbox
+                checked={tosAccepted}
+                onCheckedChange={(checked) => setTosAccepted(checked === true)}
+                disabled={isSubmitting}
+                className="mt-0.5 shrink-0"
+              />
+              <span className="text-muted-foreground text-xs leading-relaxed">
+                I agree to the{" "}
+                <a
+                  href="https://criticalbit.gg/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
+                  Terms of Service
+                </a>{" "}
+                and{" "}
+                <a
+                  href="https://criticalbit.gg/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
+                  Privacy Policy
+                </a>
+              </span>
+            </label>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isSubmitting || !tosAccepted}
+            >
               Create account
               {isSubmitting && <LoaderCircle className="animate-spin" />}
             </Button>
