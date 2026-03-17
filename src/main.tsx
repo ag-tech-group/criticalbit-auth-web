@@ -67,7 +67,7 @@ function App() {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="dark" storageKey="app_theme">
+      <ThemeProvider defaultTheme="dark" storageKey="criticalbit_theme">
         <AuthProvider>
           <AnalyticsProvider>
             <FeatureFlagProvider>
