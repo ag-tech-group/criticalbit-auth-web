@@ -28,7 +28,7 @@ export function Navbar() {
           {auth.isAuthenticated && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="hover:bg-primary/10 flex items-center gap-2 rounded-md px-2 py-1 transition-colors">
+                <button className="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-1 transition-colors">
                   <UserAvatar size="sm" />
                   <span className="text-muted-foreground hidden text-sm sm:inline">
                     {auth.displayName ?? auth.email}
@@ -37,7 +37,7 @@ export function Navbar() {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild className="hover:bg-primary/10">
+                <DropdownMenuItem asChild className="hover:bg-primary/20">
                   <a href="https://auth.criticalbit.gg/profile">
                     <ExternalLink className="size-4" />
                     Profile
@@ -45,7 +45,6 @@ export function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  className="hover:bg-primary/10"
                   onClick={async () => {
                     await auth.logout()
                     window.location.href = "/login"
