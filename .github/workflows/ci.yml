@@ -33,11 +33,11 @@ jobs:
       - name: Format check
         run: pnpm format:check
 
-      - name: Type check
-        run: pnpm tsc --noEmit
-
       - name: Test
         run: pnpm test:run
+
+      - name: Build
+        run: pnpm build
 
   # Verifies that generated API types are up-to-date with the backend
   # Requires OPENAPI_URL to be set (e.g., to a staging backend)
