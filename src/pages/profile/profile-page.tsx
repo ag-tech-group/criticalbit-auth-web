@@ -193,7 +193,8 @@ export function ProfilePage() {
                 </p>
                 <div className="grid gap-1">
                   <Label htmlFor="confirm-delete" className="text-xs">
-                    Type <strong>DELETE</strong> to confirm
+                    Type <span className="font-semibold">DELETE</span> to
+                    confirm
                   </Label>
                   <Input
                     id="confirm-delete"
