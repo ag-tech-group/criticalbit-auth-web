@@ -3,6 +3,7 @@ import { QueryClient } from "@tanstack/react-query"
 import {
   createRootRouteWithContext,
   Outlet,
+  redirect,
   useRouter,
 } from "@tanstack/react-router"
 import { Toaster } from "sonner"
@@ -11,6 +12,7 @@ import { Footer } from "@/components/footer"
 import { Navbar } from "@/components/navbar"
 import { NotFound } from "@/components/not-found"
 import { useAnalytics } from "@/lib/analytics"
+import { hasStaleConsent, type ConsentsResponse } from "@/lib/consent"
 
 const TanStackRouterDevtools = import.meta.env.PROD
   ? () => null
@@ -38,13 +40,33 @@ interface RouterContext {
     displayName: string | null
     avatarUrl: string | null
     tosAcceptedAt: string | null
+    consents: ConsentsResponse | null
     login: (email: string) => void
     logout: () => Promise<void>
     checkAuth: () => Promise<void>
+    setConsents: (consents: ConsentsResponse) => void
   }
 }
 
+// Routes that must never be hijacked by the stale-consent redirect:
+// /profile is the redirect target itself, and /callback/* handles in-flight
+// OAuth exchanges where interrupting the navigation would break sign-in.
+const CONSENT_REDIRECT_SKIP_PREFIXES = ["/profile", "/callback"]
+
 export const Route = createRootRouteWithContext<RouterContext>()({
+  beforeLoad: ({ context, location }) => {
+    if (!context.auth.isAuthenticated) return
+    const skip = CONSENT_REDIRECT_SKIP_PREFIXES.some((prefix) =>
+      location.pathname.startsWith(prefix)
+    )
+    if (skip) return
+    if (hasStaleConsent(context.auth.consents)) {
+      throw redirect({
+        to: "/profile",
+        search: { reason: "consent-stale" as const },
+      })
+    }
+  },
   component: RootComponent,
   notFoundComponent: NotFound,
   errorComponent: RootErrorComponent,

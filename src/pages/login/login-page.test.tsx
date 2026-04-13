@@ -11,9 +11,11 @@ const unauthContext = {
     displayName: null,
     avatarUrl: null,
     tosAcceptedAt: null,
+    consents: null,
     login: () => {},
     logout: async () => {},
     checkAuth: async () => {},
+    setConsents: () => {},
   },
 }
 
