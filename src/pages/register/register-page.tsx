@@ -16,12 +16,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { api } from "@/api/api"
 import { getErrorMessage } from "@/lib/api-errors"
+import { submitConsents, type ConsentInput } from "@/lib/consent"
 
 export function RegisterPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [tosAccepted, setTosAccepted] = useState(false)
+  const [analyticsConsent, setAnalyticsConsent] = useState(false)
+  const [sessionReplayConsent, setSessionReplayConsent] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -50,6 +53,19 @@ export function RegisterPage() {
       })
       // Record ToS acceptance while authenticated
       await api.post("auth/accept-tos")
+      // Record initial consent decisions. Always POST both types (even when
+      // off) so we have an explicit audit trail of the user's opt-out, not
+      // just "no row yet". Failure here shouldn't block signup — the user
+      // can retry from the profile page.
+      const consents: ConsentInput[] = [
+        { type: "analytics", consented: analyticsConsent },
+        { type: "session_replay", consented: sessionReplayConsent },
+      ]
+      try {
+        await submitConsents(consents)
+      } catch {
+        // Swallow — user is signed up; they'll be prompted again on profile.
+      }
       window.location.href = "/profile"
     } catch (error) {
       const message = await getErrorMessage(error, "Registration failed")
@@ -132,6 +148,51 @@ export function RegisterPage() {
                 </a>
               </span>
             </label>
+            <div className="grid gap-3 border-t pt-4">
+              <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                Help us improve (optional)
+              </p>
+              <label className="flex cursor-pointer items-start gap-3">
+                <Checkbox
+                  checked={analyticsConsent}
+                  onCheckedChange={(checked) =>
+                    setAnalyticsConsent(checked === true)
+                  }
+                  disabled={isSubmitting}
+                  className="mt-0.5 shrink-0"
+                />
+                <span className="text-muted-foreground text-xs leading-relaxed">
+                  Help us understand how the site is used. Enables analytics
+                  cookies so we can see which features people use across
+                  sessions.
+                </span>
+              </label>
+              <label className="flex cursor-pointer items-start gap-3">
+                <Checkbox
+                  checked={sessionReplayConsent}
+                  onCheckedChange={(checked) =>
+                    setSessionReplayConsent(checked === true)
+                  }
+                  disabled={isSubmitting}
+                  className="mt-0.5 shrink-0"
+                />
+                <span className="text-muted-foreground text-xs leading-relaxed">
+                  Allow session recording for debugging. Lets us replay your
+                  session when something breaks to help fix it faster.
+                </span>
+              </label>
+              <p className="text-muted-foreground text-xs">
+                You can change these anytime from your profile.{" "}
+                <a
+                  href="https://criticalbit.gg/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
+                  Learn more
+                </a>
+              </p>
+            </div>
             <Button
               type="submit"
               className="w-full"

@@ -8,6 +8,7 @@ import {
   useState,
 } from "react"
 import { api, setOnUnauthorized } from "@/api/api"
+import { fetchConsents, type ConsentsResponse } from "@/lib/consent"
 
 const EMAIL_KEY = "app_auth_email"
 
@@ -19,9 +20,11 @@ interface AuthContextValue {
   displayName: string | null
   avatarUrl: string | null
   tosAcceptedAt: string | null
+  consents: ConsentsResponse | null
   login: (email: string) => void
   logout: () => Promise<void>
   checkAuth: () => Promise<void>
+  setConsents: (consents: ConsentsResponse) => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -37,6 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [displayName, setDisplayName] = useState<string | null>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [tosAcceptedAt, setTosAcceptedAt] = useState<string | null>(null)
+  const [consents, setConsents] = useState<ConsentsResponse | null>(null)
 
   const clearState = useCallback(() => {
     localStorage.removeItem(EMAIL_KEY)
@@ -46,6 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setDisplayName(null)
     setTosAcceptedAt(null)
     setAvatarUrl(null)
+    setConsents(null)
     queryClient.clear()
   }, [queryClient])
 
@@ -80,6 +85,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAvatarUrl(user.avatar_url)
       setTosAcceptedAt(user.tos_accepted_at)
       localStorage.setItem(EMAIL_KEY, user.email)
+      // Consent hydration must not block auth — if the fetch fails the user
+      // still appears logged in; the root guard treats null consents as
+      // "nothing stale" so the app stays usable.
+      try {
+        setConsents(await fetchConsents())
+      } catch {
+        setConsents(null)
+      }
     } catch {
       clearState()
     } finally {
@@ -106,9 +119,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       displayName,
       avatarUrl,
       tosAcceptedAt,
+      consents,
       login,
       logout,
       checkAuth,
+      setConsents,
     }),
     [
       isAuthenticated,
@@ -118,6 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       displayName,
       avatarUrl,
       tosAcceptedAt,
+      consents,
       login,
       logout,
       checkAuth,
