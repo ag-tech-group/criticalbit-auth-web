@@ -8,7 +8,13 @@ import {
   useState,
 } from "react"
 import { api, setOnUnauthorized } from "@/api/api"
-import { fetchConsents, type ConsentsResponse } from "@/lib/consent"
+import {
+  clearCachedConsents,
+  fetchConsents,
+  writeCachedConsents,
+  type ConsentsResponse,
+} from "@/lib/consent"
+import { resetAnalytics } from "@/lib/analytics"
 
 const EMAIL_KEY = "app_auth_email"
 
@@ -40,7 +46,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [displayName, setDisplayName] = useState<string | null>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [tosAcceptedAt, setTosAcceptedAt] = useState<string | null>(null)
-  const [consents, setConsents] = useState<ConsentsResponse | null>(null)
+  const [consents, setConsentsState] = useState<ConsentsResponse | null>(null)
+
+  const setConsents = useCallback((next: ConsentsResponse) => {
+    setConsentsState(next)
+    writeCachedConsents(next)
+  }, [])
 
   const clearState = useCallback(() => {
     localStorage.removeItem(EMAIL_KEY)
@@ -50,7 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setDisplayName(null)
     setTosAcceptedAt(null)
     setAvatarUrl(null)
-    setConsents(null)
+    setConsentsState(null)
+    clearCachedConsents()
+    resetAnalytics()
     queryClient.clear()
   }, [queryClient])
 
@@ -89,9 +102,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // still appears logged in; the root guard treats null consents as
       // "nothing stale" so the app stays usable.
       try {
-        setConsents(await fetchConsents())
+        const fresh = await fetchConsents()
+        setConsentsState(fresh)
+        writeCachedConsents(fresh)
       } catch {
-        setConsents(null)
+        setConsentsState(null)
       }
     } catch {
       clearState()
@@ -137,6 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       checkAuth,
+      setConsents,
     ]
   )
 

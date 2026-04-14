@@ -6,15 +6,17 @@ import {
 import { RouterProvider, createRouter } from "@tanstack/react-router"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
+import { reactErrorHandler } from "@sentry/react"
 import { toast } from "sonner"
 // @ts-expect-error -- fontsource CSS-only import, no types
 import "@fontsource-variable/geist"
 import { ThemeProvider } from "./components/theme-provider"
 import "./index.css"
-import { AnalyticsProvider } from "./lib/analytics"
+import { AnalyticsProvider, createAnalyticsBackend } from "./lib/analytics"
 import { getErrorMessage } from "./lib/api-errors"
 import { AuthProvider, useAuth } from "./lib/auth"
 import { FeatureFlagProvider } from "./lib/feature-flags"
+import { initSentry } from "./lib/sentry"
 import { routeTree } from "./routeTree.gen"
 
 const queryClient = new QueryClient({
@@ -44,6 +46,8 @@ const router = createRouter({
   defaultPreloadStaleTime: 0,
 })
 
+initSentry(router)
+
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router
@@ -64,12 +68,18 @@ function App() {
   return <RouterProvider router={router} context={{ auth }} />
 }
 
-createRoot(document.getElementById("root")!).render(
+const analyticsBackend = createAnalyticsBackend()
+
+createRoot(document.getElementById("root")!, {
+  onCaughtError: reactErrorHandler(),
+  onUncaughtError: reactErrorHandler(),
+  onRecoverableError: reactErrorHandler(),
+}).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="dark" storageKey="criticalbit_theme">
         <AuthProvider>
-          <AnalyticsProvider>
+          <AnalyticsProvider backend={analyticsBackend}>
             <FeatureFlagProvider>
               <App />
             </FeatureFlagProvider>
