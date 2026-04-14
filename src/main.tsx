@@ -12,6 +12,7 @@ import { toast } from "sonner"
 import "@fontsource-variable/geist"
 import { ThemeProvider } from "./components/theme-provider"
 import "./index.css"
+import { Skeleton } from "./components/ui/skeleton"
 import { AnalyticsProvider, createAnalyticsBackend } from "./lib/analytics"
 import { getErrorMessage } from "./lib/api-errors"
 import { AuthProvider, useAuth } from "./lib/auth"
@@ -62,9 +63,40 @@ declare module "@tanstack/react-query" {
   }
 }
 
+function AppShellSkeleton() {
+  return (
+    <>
+      <nav className="border-border/50 bg-background/80 fixed top-0 z-50 w-full border-b backdrop-blur-sm">
+        <div className="flex h-14 items-center justify-between px-4">
+          <span className="font-pixel text-lg tracking-wide">CriticalBit</span>
+          <div className="flex items-center gap-2">
+            <Skeleton className="size-8 rounded-md" />
+            <Skeleton className="size-8 rounded-md" />
+          </div>
+        </div>
+      </nav>
+      <div className="flex min-h-screen items-center justify-center px-4 pt-14">
+        <div className="w-full max-w-sm space-y-6 rounded-lg border p-6">
+          <div className="flex flex-col items-center gap-3">
+            <Skeleton className="size-16 rounded-full" />
+            <Skeleton className="h-6 w-32" />
+          </div>
+          <div className="space-y-3">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-9 w-full" />
+          </div>
+          <Skeleton className="h-9 w-full" />
+        </div>
+      </div>
+    </>
+  )
+}
+
 function App() {
   const auth = useAuth()
-  if (auth.isLoading) return null
+  if (auth.isLoading) return <AppShellSkeleton />
   return <RouterProvider router={router} context={{ auth }} />
 }
 
