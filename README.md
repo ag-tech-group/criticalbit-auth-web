@@ -16,28 +16,31 @@ Auth frontend for [criticalbit.gg](https://criticalbit.gg). Handles user authent
 ## Features
 
 - Email/password login and registration
-- Google OAuth and Steam OpenID sign-in
+- Google OAuth and Steam OpenID sign-in (and linking either provider to an existing account)
 - Password reset via email (Resend)
 - User profile with avatar (from OAuth providers)
 - Account deletion with confirmation
 - ToS acceptance gate for OAuth users
+- Granular consent: analytics and session-replay opt-ins collected at registration and editable on the profile page; re-prompts when the consent options change (the profile page is the platform-wide place users manage these)
+- App-shell skeleton on first paint (no blank flash before hydration)
+- Error tracking (Sentry) and product analytics (PostHog), with PostHog capture and session replay gated on the user's recorded consent
 - Dark mode (default) and light mode with shared cookie
 - CriticalBit theme (Geist + Geist Pixel Line fonts, ice blue/emerald palette)
 
 ## Pages
 
-| Route                       | Description                                   |
-| --------------------------- | --------------------------------------------- |
-| `/login`                    | Sign in with email/password, Google, or Steam |
-| `/register`                 | Create account with ToS acceptance            |
-| `/profile`                  | User profile, account deletion                |
-| `/forgot-password`          | Request password reset email                  |
-| `/reset-password`           | Set new password from email link              |
-| `/accept-terms`             | ToS gate for OAuth users                      |
-| `/callback/google`          | Google OAuth callback (dev)                   |
-| `/callback/steam`           | Steam OpenID callback (dev)                   |
-| `/callback/google-complete` | Post-OAuth redirect handler (prod)            |
-| `/callback/steam-complete`  | Post-OAuth redirect handler (prod)            |
+| Route                       | Description                                            |
+| --------------------------- | ------------------------------------------------------ |
+| `/login`                    | Sign in with email/password, Google, or Steam          |
+| `/register`                 | Create account with ToS acceptance and consent opt-ins |
+| `/profile`                  | User profile, consent settings, account deletion       |
+| `/forgot-password`          | Request password reset email                           |
+| `/reset-password`           | Set new password from email link                       |
+| `/accept-terms`             | ToS gate for OAuth users                               |
+| `/callback/google`          | Google OAuth callback (dev)                            |
+| `/callback/steam`           | Steam OpenID callback (dev)                            |
+| `/callback/google-complete` | Post-OAuth redirect handler (prod)                     |
+| `/callback/steam-complete`  | Post-OAuth redirect handler (prod)                     |
 
 ## Development
 
