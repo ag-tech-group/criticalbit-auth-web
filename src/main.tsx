@@ -10,6 +10,8 @@ import { reactErrorHandler } from "@sentry/react"
 import { toast } from "sonner"
 // @ts-expect-error -- fontsource CSS-only import, no types
 import "@fontsource-variable/geist"
+import { ErrorBoundary } from "./components/error-boundary"
+import { NotFound } from "./components/not-found"
 import { ThemeProvider } from "./components/theme-provider"
 import "./index.css"
 import { Skeleton } from "./components/ui/skeleton"
@@ -45,6 +47,8 @@ const router = createRouter({
   },
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
+  defaultNotFoundComponent: NotFound,
+  defaultErrorComponent: ErrorBoundary,
 })
 
 initSentry(router)

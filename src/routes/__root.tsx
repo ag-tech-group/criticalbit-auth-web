@@ -7,10 +7,8 @@ import {
   useRouter,
 } from "@tanstack/react-router"
 import { Toaster } from "sonner"
-import { RootErrorComponent } from "@/components/error-boundary"
 import { Footer } from "@/components/footer"
 import { Navbar } from "@/components/navbar"
-import { NotFound } from "@/components/not-found"
 import { useAnalytics } from "@/lib/analytics"
 import { hasStaleConsent, type ConsentsResponse } from "@/lib/consent"
 
@@ -68,8 +66,6 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     }
   },
   component: RootComponent,
-  notFoundComponent: NotFound,
-  errorComponent: RootErrorComponent,
 })
 
 function RouteTracker() {
