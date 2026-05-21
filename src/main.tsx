@@ -10,6 +10,7 @@ import { reactErrorHandler } from "@sentry/react"
 import { toast } from "sonner"
 // @ts-expect-error -- fontsource CSS-only import, no types
 import "@fontsource-variable/geist"
+import { BrandLockup } from "./components/brand-lockup"
 import { ErrorBoundary } from "./components/error-boundary"
 import { NotFound } from "./components/not-found"
 import { ThemeProvider } from "./components/theme-provider"
@@ -72,7 +73,7 @@ function AppShellSkeleton() {
     <>
       <nav className="border-border/50 bg-background/80 fixed top-0 z-50 w-full border-b backdrop-blur-sm">
         <div className="flex h-14 items-center justify-between px-4">
-          <span className="font-pixel text-lg tracking-wide">CriticalBit</span>
+          <BrandLockup />
           <div className="flex items-center gap-2">
             <Skeleton className="size-8 rounded-md" />
             <Skeleton className="size-8 rounded-md" />
