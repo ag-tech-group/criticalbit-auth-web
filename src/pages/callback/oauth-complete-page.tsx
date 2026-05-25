@@ -8,12 +8,14 @@ export function OAuthCompletePage() {
     if (calledRef.current) return
     calledRef.current = true
 
-    // Check if user has accepted ToS
     api
       .get("auth/me")
-      .json<{ tos_accepted_at: string | null }>()
+      .json<{ email: string | null; tos_accepted_at: string | null }>()
       .then((user) => {
-        if (!user.tos_accepted_at) {
+        // Steam OAuth users start with no email until they pass through
+        // /accept-terms (auth-api #36, auth-web #36) — route them there
+        // even if they previously accepted the old TOS-only gate.
+        if (!user.tos_accepted_at || !user.email) {
           // Keep the redirect in localStorage — accept-terms page will use it
           window.location.href = "/accept-terms"
         } else {

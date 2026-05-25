@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const user = await api.get("auth/me").json<{
         id: string
-        email: string
+        email: string | null
         display_name: string | null
         avatar_url: string | null
         tos_accepted_at: string | null
@@ -97,7 +97,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setDisplayName(user.display_name)
       setAvatarUrl(user.avatar_url)
       setTosAcceptedAt(user.tos_accepted_at)
-      localStorage.setItem(EMAIL_KEY, user.email)
+      // Steam OAuth users start with no email until they pass /accept-terms;
+      // don't cache "null" as a string and don't leave a stale value behind.
+      if (user.email) {
+        localStorage.setItem(EMAIL_KEY, user.email)
+      } else {
+        localStorage.removeItem(EMAIL_KEY)
+      }
       // Consent hydration must not block auth — if the fetch fails the user
       // still appears logged in; the root guard treats null consents as
       // "nothing stale" so the app stays usable.

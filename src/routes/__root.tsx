@@ -51,9 +51,24 @@ interface RouterContext {
 // OAuth exchanges where interrupting the navigation would break sign-in.
 const CONSENT_REDIRECT_SKIP_PREFIXES = ["/profile", "/callback"]
 
+// Users without an email on file (Steam OAuth users pre-gate, per auth-api
+// #36) must finish setting one before using the rest of the app.
+// /accept-terms is the gate itself, /callback/* is the post-OAuth handoff
+// that already routes them there, and /login stays usable so they can sign
+// out without bouncing.
+const EMAIL_REQUIRED_SKIP_PREFIXES = ["/accept-terms", "/callback", "/login"]
+
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: ({ context, location }) => {
     if (!context.auth.isAuthenticated) return
+    if (
+      !context.auth.email &&
+      !EMAIL_REQUIRED_SKIP_PREFIXES.some((prefix) =>
+        location.pathname.startsWith(prefix)
+      )
+    ) {
+      throw redirect({ to: "/accept-terms" })
+    }
     const skip = CONSENT_REDIRECT_SKIP_PREFIXES.some((prefix) =>
       location.pathname.startsWith(prefix)
     )
