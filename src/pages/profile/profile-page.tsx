@@ -36,6 +36,8 @@ const CONSENT_COPY: Record<ConsentType, ConsentToggleCopy> = {
   },
 }
 
+const DISPLAY_NAME_MAX_LENGTH = 100
+
 export function ProfilePage() {
   const auth = useAuth()
   const search = ProfileRoute.useSearch()
@@ -45,9 +47,19 @@ export function ProfilePage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [savingConsentType, setSavingConsentType] =
     useState<ConsentType | null>(null)
+  const [displayName, setDisplayName] = useState(auth.displayName ?? "")
+  const [isSavingDisplayName, setIsSavingDisplayName] = useState(false)
+
+  useEffect(() => {
+    setDisplayName(auth.displayName ?? "")
+  }, [auth.displayName])
 
   const stale = hasStaleConsent(auth.consents)
   const showStaleBanner = stale || search.reason === "consent-stale"
+
+  const trimmedDisplayName = displayName.trim()
+  const currentDisplayName = auth.displayName ?? ""
+  const displayNameChanged = trimmedDisplayName !== currentDisplayName
 
   useEffect(() => {
     if (showStaleBanner && privacySectionRef.current) {
@@ -57,6 +69,28 @@ export function ProfilePage() {
       })
     }
   }, [showStaleBanner])
+
+  async function handleDisplayNameSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!displayNameChanged || isSavingDisplayName) return
+
+    setIsSavingDisplayName(true)
+    try {
+      await api.patch("auth/me", { json: { display_name: trimmedDisplayName } })
+      await auth.checkAuth()
+      toast.success(
+        trimmedDisplayName ? "Display name updated." : "Display name cleared."
+      )
+    } catch (error) {
+      const message = await getErrorMessage(
+        error,
+        "Failed to update display name"
+      )
+      toast.error(message)
+    } finally {
+      setIsSavingDisplayName(false)
+    }
+  }
 
   async function handleDelete(e: React.FormEvent) {
     e.preventDefault()
@@ -113,9 +147,43 @@ export function ProfilePage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-6">
-          <div className="grid gap-1 text-sm">
-            <span className="text-muted-foreground">Email</span>
-            <span>{auth.email}</span>
+          <div className="grid gap-4">
+            <div className="grid gap-1 text-sm">
+              <span className="text-muted-foreground">Email</span>
+              <span>{auth.email}</span>
+            </div>
+            <form
+              onSubmit={handleDisplayNameSubmit}
+              className="grid gap-2"
+              data-testid="display-name-form"
+            >
+              <Label htmlFor="display-name" className="text-muted-foreground">
+                Display name
+              </Label>
+              <Input
+                id="display-name"
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                maxLength={DISPLAY_NAME_MAX_LENGTH}
+                placeholder="How you'll appear across criticalbit.gg"
+                autoComplete="nickname"
+                disabled={isSavingDisplayName}
+              />
+              <Button
+                type="submit"
+                size="sm"
+                className="w-full"
+                disabled={!displayNameChanged || isSavingDisplayName}
+              >
+                {trimmedDisplayName || !currentDisplayName
+                  ? "Save display name"
+                  : "Clear display name"}
+                {isSavingDisplayName && (
+                  <LoaderCircle className="animate-spin" />
+                )}
+              </Button>
+            </form>
           </div>
 
           <div
