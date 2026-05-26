@@ -48,6 +48,7 @@ function makeRouterAuth(overrides: {
       displayName: null,
       avatarUrl: null,
       tosAcceptedAt: overrides.tosAcceptedAt ?? null,
+      hasUsablePassword: true,
       consents: null,
       login: () => {},
       logout: async () => {},

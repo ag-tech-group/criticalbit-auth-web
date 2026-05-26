@@ -13,6 +13,7 @@ const unauthContext = {
     displayName: null,
     avatarUrl: null,
     tosAcceptedAt: null,
+    hasUsablePassword: false,
     consents: null,
     login: () => {},
     logout: async () => {},

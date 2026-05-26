@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react"
-import { useNavigate } from "@tanstack/react-router"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { LoaderCircle } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -26,6 +26,17 @@ const PROVIDERS: { id: ProviderId; label: string }[] = [
   { id: "google", label: "Google" },
   { id: "steam", label: "Steam" },
 ]
+
+async function readErrorDetail(error: unknown): Promise<unknown> {
+  const response = (error as { response?: Response })?.response
+  if (!response) return null
+  try {
+    const body = await response.clone().json()
+    return body?.detail ?? null
+  } catch {
+    return null
+  }
+}
 
 interface ConsentToggleCopy {
   label: string
@@ -64,28 +75,33 @@ export function ProfilePage() {
   )
   const [connectingProvider, setConnectingProvider] =
     useState<ProviderId | null>(null)
+  const [disconnectingProvider, setDisconnectingProvider] =
+    useState<ProviderId | null>(null)
+  const [strandingIssue, setStrandingIssue] = useState<{
+    message: string
+    remediation: string[]
+  } | null>(null)
 
   useEffect(() => {
     setDisplayName(auth.displayName ?? "")
   }, [auth.displayName])
 
-  useEffect(() => {
-    let cancelled = false
-    api
-      .get("auth/me/connections")
-      .json<ProviderConnection[]>()
-      .then((list) => {
-        if (!cancelled) setConnections(list)
-      })
-      .catch(() => {
-        // Show an empty list rather than blocking the rest of the page; the
-        // user can refresh to retry. Avoids a noisy toast on transient errors.
-        if (!cancelled) setConnections([])
-      })
-    return () => {
-      cancelled = true
+  const refreshConnections = useCallback(async () => {
+    try {
+      const list = await api
+        .get("auth/me/connections")
+        .json<ProviderConnection[]>()
+      setConnections(list)
+    } catch {
+      // Show an empty list rather than blocking the rest of the page; the
+      // user can refresh to retry. Avoids a noisy toast on transient errors.
+      setConnections([])
     }
   }, [])
+
+  useEffect(() => {
+    void refreshConnections()
+  }, [refreshConnections])
 
   useEffect(() => {
     if (!search.linked) return
@@ -169,6 +185,59 @@ export function ProfilePage() {
       )
       toast.error(message)
       setConnectingProvider(null)
+    }
+  }
+
+  async function handleDisconnect(provider: ProviderId) {
+    setDisconnectingProvider(provider)
+    setStrandingIssue(null)
+    try {
+      await api.delete(`auth/me/connections/${provider}`)
+      await refreshConnections()
+      // /auth/me changes too (has_usable_password unaffected, but cookies may
+      // refresh on the same response). Re-check so the rest of the page is
+      // accurate.
+      await auth.checkAuth()
+      const label = PROVIDERS.find((p) => p.id === provider)?.label ?? provider
+      toast.success(`Disconnected ${label}.`)
+    } catch (error) {
+      const detail = await readErrorDetail(error)
+      if (
+        detail &&
+        typeof detail === "object" &&
+        (detail as { code?: unknown }).code === "unlink_would_strand_user"
+      ) {
+        const d = detail as {
+          message?: string
+          remediation?: unknown
+        }
+        const remediation = Array.isArray(d.remediation)
+          ? (d.remediation.filter((r) => typeof r === "string") as string[])
+          : []
+        setStrandingIssue({
+          message:
+            d.message ??
+            "Disconnecting this account would leave you with no way to sign in.",
+          remediation,
+        })
+        // Server saw a different reality than we did; refresh so the UI
+        // reflects the truth.
+        await refreshConnections()
+        await auth.checkAuth()
+      } else if (
+        detail &&
+        typeof detail === "object" &&
+        (detail as { code?: unknown }).code === "connection_not_found"
+      ) {
+        // Stale UI — the connection is already gone. Resync and tell the user.
+        await refreshConnections()
+        toast.info("That connection is already disconnected.")
+      } else {
+        const message = await getErrorMessage(error, "Failed to disconnect")
+        toast.error(message)
+      }
+    } finally {
+      setDisconnectingProvider(null)
     }
   }
 
@@ -323,51 +392,131 @@ export function ProfilePage() {
                 Loading…
               </p>
             ) : (
-              PROVIDERS.map(({ id, label }) => {
-                const linked = connections.find((c) => c.provider === id)
-                const isConnecting = connectingProvider === id
-                return (
-                  <div
-                    key={id}
-                    className="flex items-center justify-between gap-3"
-                  >
-                    <div className="grid gap-0.5">
-                      <span className="text-sm font-medium">{label}</span>
+              <>
+                {PROVIDERS.map(({ id, label }) => {
+                  const linked = connections.find((c) => c.provider === id)
+                  const isConnecting = connectingProvider === id
+                  const isDisconnecting = disconnectingProvider === id
+                  // Stranding guard: removing this connection is only safe if
+                  // either another connection remains, or the user has a
+                  // password they can fall back to. Mirrors the server-side
+                  // rule so the user doesn't have to click Disconnect to learn
+                  // it's blocked.
+                  const otherConnections = connections.filter(
+                    (c) => c.provider !== id
+                  )
+                  const hasPasswordFallback =
+                    auth.hasUsablePassword && !!auth.email
+                  const canUnlink =
+                    !!linked &&
+                    (otherConnections.length > 0 || hasPasswordFallback)
+                  return (
+                    <div
+                      key={id}
+                      className="flex items-start justify-between gap-3"
+                    >
+                      <div className="grid gap-0.5">
+                        <span className="text-sm font-medium">{label}</span>
+                        {linked ? (
+                          <span className="text-muted-foreground text-xs">
+                            Connected
+                            {(linked.account_email ?? linked.account_id) && (
+                              <>
+                                {" as "}
+                                <span className="font-mono">
+                                  {linked.account_email ?? linked.account_id}
+                                </span>
+                              </>
+                            )}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">
+                            Not connected
+                          </span>
+                        )}
+                        {linked && !canUnlink && (
+                          <span className="text-muted-foreground text-xs">
+                            You'd have no way to sign in. Set a password first
+                            or link another provider.
+                          </span>
+                        )}
+                      </div>
                       {linked ? (
-                        <span className="text-muted-foreground text-xs">
-                          Connected
-                          {(linked.account_email ?? linked.account_id) && (
-                            <>
-                              {" as "}
-                              <span className="font-mono">
-                                {linked.account_email ?? linked.account_id}
-                              </span>
-                            </>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDisconnect(id)}
+                          disabled={!canUnlink || isDisconnecting}
+                        >
+                          Disconnect
+                          {isDisconnecting && (
+                            <LoaderCircle className="animate-spin" />
                           )}
-                        </span>
+                        </Button>
                       ) : (
-                        <span className="text-muted-foreground text-xs">
-                          Not connected
-                        </span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleConnect(id)}
+                          disabled={isConnecting}
+                        >
+                          Connect
+                          {isConnecting && (
+                            <LoaderCircle className="animate-spin" />
+                          )}
+                        </Button>
                       )}
                     </div>
-                    {!linked && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleConnect(id)}
-                        disabled={isConnecting}
-                      >
-                        Connect
-                        {isConnecting && (
-                          <LoaderCircle className="animate-spin" />
-                        )}
-                      </Button>
+                  )
+                })}
+                {strandingIssue && (
+                  <div
+                    className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs leading-relaxed"
+                    data-testid="stranding-issue"
+                  >
+                    <p className="mb-1 text-amber-200">
+                      {strandingIssue.message}
+                    </p>
+                    {strandingIssue.remediation.length > 0 && (
+                      <ul className="text-muted-foreground list-disc space-y-0.5 pl-4">
+                        {strandingIssue.remediation.map((hint, idx) => (
+                          <li key={idx}>
+                            {/set a password/i.test(hint) && auth.email ? (
+                              <>
+                                {hint}{" "}
+                                <Link
+                                  to="/forgot-password"
+                                  search={{ email: auth.email }}
+                                  className="text-primary underline"
+                                >
+                                  Start now.
+                                </Link>
+                              </>
+                            ) : (
+                              hint
+                            )}
+                          </li>
+                        ))}
+                      </ul>
                     )}
                   </div>
-                )
-              })
+                )}
+                {!auth.hasUsablePassword && auth.email && (
+                  <p className="text-muted-foreground text-xs">
+                    You don't have a password set.{" "}
+                    <Link
+                      to="/forgot-password"
+                      search={{ email: auth.email }}
+                      className="text-primary underline"
+                    >
+                      Set a password
+                    </Link>{" "}
+                    to also sign in with your email.
+                  </p>
+                )}
+              </>
             )}
           </div>
 

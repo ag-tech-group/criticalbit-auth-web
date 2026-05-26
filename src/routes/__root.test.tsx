@@ -20,6 +20,7 @@ function makeAuthContext(overrides: {
       displayName: "ZeroEmpires",
       avatarUrl: null,
       tosAcceptedAt: overrides.tosAcceptedAt ?? null,
+      hasUsablePassword: true,
       consents: null,
       login: () => {},
       logout: async () => {},

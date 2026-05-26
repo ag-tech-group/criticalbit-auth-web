@@ -25,6 +25,7 @@ type AuthMeBody = {
   display_name: string | null
   avatar_url: string | null
   tos_accepted_at: string | null
+  has_usable_password?: boolean
 }
 
 const consentsHandler = http.get("*/user/consents", () =>
@@ -297,5 +298,169 @@ describe("ProfilePage connected accounts", () => {
     await waitFor(() =>
       expect(toast.success).toHaveBeenCalledWith("Linked your Google account.")
     )
+  })
+
+  it("disables Disconnect with a helper hint when removing it would strand the user", async () => {
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: null,
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+      has_usable_password: false,
+    })
+    server.use(
+      me.handler,
+      consentsHandler,
+      http.get("*/auth/me/connections", () =>
+        HttpResponse.json([
+          {
+            provider: "google",
+            account_id: "g-1",
+            account_email: "player@gmail.com",
+          },
+        ])
+      )
+    )
+
+    await renderWithFileRoutes(<></>, { initialLocation: "/profile" })
+
+    const disconnect = await screen.findByRole("button", {
+      name: /disconnect/i,
+    })
+    expect(disconnect).toBeDisabled()
+    expect(screen.getByText(/no way to sign in/i)).toBeInTheDocument()
+  })
+
+  it("DELETEs the connection on click and refreshes the list", async () => {
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: null,
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+      has_usable_password: true,
+    })
+
+    const linkedOnce = [
+      {
+        provider: "google",
+        account_id: "g-1",
+        account_email: "player@gmail.com",
+      },
+    ]
+    let connectionsState = linkedOnce
+    let deleteHit = false
+
+    server.use(
+      me.handler,
+      consentsHandler,
+      http.get("*/auth/me/connections", () =>
+        HttpResponse.json(connectionsState)
+      ),
+      http.delete("*/auth/me/connections/google", () => {
+        deleteHit = true
+        connectionsState = []
+        return new HttpResponse(null, { status: 204 })
+      })
+    )
+
+    await renderWithFileRoutes(<></>, { initialLocation: "/profile" })
+
+    const disconnect = await screen.findByRole("button", {
+      name: /disconnect/i,
+    })
+    expect(disconnect).not.toBeDisabled()
+
+    const user = userEvent.setup()
+    await user.click(disconnect)
+
+    await waitFor(() => expect(deleteHit).toBe(true))
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith("Disconnected Google.")
+    )
+  })
+
+  it("renders the remediation list when the server returns unlink_would_strand_user", async () => {
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: null,
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+      has_usable_password: true,
+    })
+    server.use(
+      me.handler,
+      consentsHandler,
+      http.get("*/auth/me/connections", () =>
+        HttpResponse.json([
+          {
+            provider: "google",
+            account_id: "g-1",
+            account_email: "player@gmail.com",
+          },
+        ])
+      ),
+      http.delete("*/auth/me/connections/google", () =>
+        HttpResponse.json(
+          {
+            detail: {
+              code: "unlink_would_strand_user",
+              message:
+                "Disconnecting this account would leave you with no way to sign in.",
+              provider: "google",
+              remediation: [
+                "set a password via /auth/forgot-password first",
+                "link another provider that provides an email",
+              ],
+            },
+          },
+          { status: 409 }
+        )
+      )
+    )
+
+    await renderWithFileRoutes(<></>, { initialLocation: "/profile" })
+
+    const disconnect = await screen.findByRole("button", {
+      name: /disconnect/i,
+    })
+    const user = userEvent.setup()
+    await user.click(disconnect)
+
+    expect(await screen.findByTestId("stranding-issue")).toBeInTheDocument()
+    expect(screen.getByText(/set a password/i)).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /start now/i })).toBeInTheDocument()
+  })
+
+  it("renders the set-a-password CTA when the user has no usable password", async () => {
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: null,
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+      has_usable_password: false,
+    })
+    server.use(
+      me.handler,
+      consentsHandler,
+      http.get("*/auth/me/connections", () =>
+        HttpResponse.json([
+          {
+            provider: "google",
+            account_id: "g-1",
+            account_email: "player@gmail.com",
+          },
+        ])
+      )
+    )
+
+    await renderWithFileRoutes(<></>, { initialLocation: "/profile" })
+
+    expect(
+      await screen.findByRole("link", { name: /set a password/i })
+    ).toBeInTheDocument()
   })
 })

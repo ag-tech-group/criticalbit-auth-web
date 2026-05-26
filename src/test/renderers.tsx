@@ -25,6 +25,7 @@ interface RenderWithFileRoutesOptions extends Omit<RenderOptions, "wrapper"> {
       displayName: string | null
       avatarUrl: string | null
       tosAcceptedAt: string | null
+      hasUsablePassword: boolean
       consents: ConsentsResponse | null
       login: (email: string) => void
       logout: () => Promise<void>
@@ -42,6 +43,7 @@ const defaultAuth = {
   displayName: null,
   avatarUrl: null,
   tosAcceptedAt: null,
+  hasUsablePassword: true,
   consents: null,
   login: () => {},
   logout: async () => {},
