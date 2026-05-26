@@ -26,3 +26,6 @@ dist-ssr
 
 # TypeScript
 *.tsbuildinfo
+
+# Playwright MCP artifacts (screenshots, snapshot YAML, console logs)
+.playwright-mcp/
