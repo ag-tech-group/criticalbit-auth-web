@@ -18,8 +18,10 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AcceptTermsRouteImport } from './routes/accept-terms'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CallbackSteamCompleteRouteImport } from './routes/callback/steam-complete'
+import { Route as CallbackSteamAssociateCompleteRouteImport } from './routes/callback/steam-associate-complete'
 import { Route as CallbackSteamRouteImport } from './routes/callback/steam'
 import { Route as CallbackGoogleCompleteRouteImport } from './routes/callback/google-complete'
+import { Route as CallbackGoogleAssociateCompleteRouteImport } from './routes/callback/google-associate-complete'
 import { Route as CallbackGoogleRouteImport } from './routes/callback/google'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
@@ -67,6 +69,12 @@ const CallbackSteamCompleteRoute = CallbackSteamCompleteRouteImport.update({
   path: '/callback/steam-complete',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CallbackSteamAssociateCompleteRoute =
+  CallbackSteamAssociateCompleteRouteImport.update({
+    id: '/callback/steam-associate-complete',
+    path: '/callback/steam-associate-complete',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CallbackSteamRoute = CallbackSteamRouteImport.update({
   id: '/callback/steam',
   path: '/callback/steam',
@@ -77,6 +85,12 @@ const CallbackGoogleCompleteRoute = CallbackGoogleCompleteRouteImport.update({
   path: '/callback/google-complete',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CallbackGoogleAssociateCompleteRoute =
+  CallbackGoogleAssociateCompleteRouteImport.update({
+    id: '/callback/google-associate-complete',
+    path: '/callback/google-associate-complete',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CallbackGoogleRoute = CallbackGoogleRouteImport.update({
   id: '/callback/google',
   path: '/callback/google',
@@ -93,8 +107,10 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
   '/callback/google': typeof CallbackGoogleRoute
+  '/callback/google-associate-complete': typeof CallbackGoogleAssociateCompleteRoute
   '/callback/google-complete': typeof CallbackGoogleCompleteRoute
   '/callback/steam': typeof CallbackSteamRoute
+  '/callback/steam-associate-complete': typeof CallbackSteamAssociateCompleteRoute
   '/callback/steam-complete': typeof CallbackSteamCompleteRoute
 }
 export interface FileRoutesByTo {
@@ -107,8 +123,10 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
   '/callback/google': typeof CallbackGoogleRoute
+  '/callback/google-associate-complete': typeof CallbackGoogleAssociateCompleteRoute
   '/callback/google-complete': typeof CallbackGoogleCompleteRoute
   '/callback/steam': typeof CallbackSteamRoute
+  '/callback/steam-associate-complete': typeof CallbackSteamAssociateCompleteRoute
   '/callback/steam-complete': typeof CallbackSteamCompleteRoute
 }
 export interface FileRoutesById {
@@ -122,8 +140,10 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
   '/callback/google': typeof CallbackGoogleRoute
+  '/callback/google-associate-complete': typeof CallbackGoogleAssociateCompleteRoute
   '/callback/google-complete': typeof CallbackGoogleCompleteRoute
   '/callback/steam': typeof CallbackSteamRoute
+  '/callback/steam-associate-complete': typeof CallbackSteamAssociateCompleteRoute
   '/callback/steam-complete': typeof CallbackSteamCompleteRoute
 }
 export interface FileRouteTypes {
@@ -138,8 +158,10 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/verify-email'
     | '/callback/google'
+    | '/callback/google-associate-complete'
     | '/callback/google-complete'
     | '/callback/steam'
+    | '/callback/steam-associate-complete'
     | '/callback/steam-complete'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -152,8 +174,10 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/verify-email'
     | '/callback/google'
+    | '/callback/google-associate-complete'
     | '/callback/google-complete'
     | '/callback/steam'
+    | '/callback/steam-associate-complete'
     | '/callback/steam-complete'
   id:
     | '__root__'
@@ -166,8 +190,10 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/verify-email'
     | '/callback/google'
+    | '/callback/google-associate-complete'
     | '/callback/google-complete'
     | '/callback/steam'
+    | '/callback/steam-associate-complete'
     | '/callback/steam-complete'
   fileRoutesById: FileRoutesById
 }
@@ -181,8 +207,10 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   CallbackGoogleRoute: typeof CallbackGoogleRoute
+  CallbackGoogleAssociateCompleteRoute: typeof CallbackGoogleAssociateCompleteRoute
   CallbackGoogleCompleteRoute: typeof CallbackGoogleCompleteRoute
   CallbackSteamRoute: typeof CallbackSteamRoute
+  CallbackSteamAssociateCompleteRoute: typeof CallbackSteamAssociateCompleteRoute
   CallbackSteamCompleteRoute: typeof CallbackSteamCompleteRoute
 }
 
@@ -251,6 +279,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CallbackSteamCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/callback/steam-associate-complete': {
+      id: '/callback/steam-associate-complete'
+      path: '/callback/steam-associate-complete'
+      fullPath: '/callback/steam-associate-complete'
+      preLoaderRoute: typeof CallbackSteamAssociateCompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/callback/steam': {
       id: '/callback/steam'
       path: '/callback/steam'
@@ -263,6 +298,13 @@ declare module '@tanstack/react-router' {
       path: '/callback/google-complete'
       fullPath: '/callback/google-complete'
       preLoaderRoute: typeof CallbackGoogleCompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/callback/google-associate-complete': {
+      id: '/callback/google-associate-complete'
+      path: '/callback/google-associate-complete'
+      fullPath: '/callback/google-associate-complete'
+      preLoaderRoute: typeof CallbackGoogleAssociateCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/callback/google': {
@@ -285,8 +327,10 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   CallbackGoogleRoute: CallbackGoogleRoute,
+  CallbackGoogleAssociateCompleteRoute: CallbackGoogleAssociateCompleteRoute,
   CallbackGoogleCompleteRoute: CallbackGoogleCompleteRoute,
   CallbackSteamRoute: CallbackSteamRoute,
+  CallbackSteamAssociateCompleteRoute: CallbackSteamAssociateCompleteRoute,
   CallbackSteamCompleteRoute: CallbackSteamCompleteRoute,
 }
 export const routeTree = rootRouteImport

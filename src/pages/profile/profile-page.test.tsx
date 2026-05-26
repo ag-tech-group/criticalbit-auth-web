@@ -210,3 +210,92 @@ describe("ProfilePage display name", () => {
     expect(button).toBeDisabled()
   })
 })
+
+describe("ProfilePage connected accounts", () => {
+  it("shows Connect buttons for unlinked providers and the linked status for linked ones", async () => {
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: null,
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+    })
+    server.use(
+      me.handler,
+      consentsHandler,
+      http.get("*/auth/me/connections", () =>
+        HttpResponse.json([
+          {
+            provider: "google",
+            account_id: "google-acct-1",
+            account_email: "player@gmail.com",
+          },
+        ])
+      )
+    )
+
+    await renderWithFileRoutes(<></>, { initialLocation: "/profile" })
+
+    expect(await screen.findByText("player@gmail.com")).toBeInTheDocument()
+    // Steam is not in the list — should render a Connect button
+    expect(
+      screen.getByRole("button", { name: /^connect$/i })
+    ).toBeInTheDocument()
+  })
+
+  it("renders the list even when /auth/me/connections fails", async () => {
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: null,
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+    })
+    server.use(
+      me.handler,
+      consentsHandler,
+      http.get("*/auth/me/connections", () =>
+        HttpResponse.json({ detail: "boom" }, { status: 500 })
+      )
+    )
+
+    await renderWithFileRoutes(<></>, { initialLocation: "/profile" })
+
+    // Both providers should render Not connected + Connect button
+    const connectButtons = await screen.findAllByRole("button", {
+      name: /^connect$/i,
+    })
+    expect(connectButtons).toHaveLength(2)
+  })
+
+  it("toasts and strips the ?linked= param after an associate redirect", async () => {
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: null,
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+    })
+    server.use(
+      me.handler,
+      consentsHandler,
+      http.get("*/auth/me/connections", () =>
+        HttpResponse.json([
+          {
+            provider: "google",
+            account_id: "google-acct-1",
+            account_email: "player@gmail.com",
+          },
+        ])
+      )
+    )
+
+    await renderWithFileRoutes(<></>, {
+      initialLocation: "/profile?linked=google",
+    })
+
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith("Linked your Google account.")
+    )
+  })
+})
