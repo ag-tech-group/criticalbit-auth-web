@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -21,6 +22,11 @@ import { Route as CallbackSteamRouteImport } from './routes/callback/steam'
 import { Route as CallbackGoogleCompleteRouteImport } from './routes/callback/google-complete'
 import { Route as CallbackGoogleRouteImport } from './routes/callback/google'
 
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/callback/google': typeof CallbackGoogleRoute
   '/callback/google-complete': typeof CallbackGoogleCompleteRoute
   '/callback/steam': typeof CallbackSteamRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/callback/google': typeof CallbackGoogleRoute
   '/callback/google-complete': typeof CallbackGoogleCompleteRoute
   '/callback/steam': typeof CallbackSteamRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/callback/google': typeof CallbackGoogleRoute
   '/callback/google-complete': typeof CallbackGoogleCompleteRoute
   '/callback/steam': typeof CallbackSteamRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/register'
     | '/reset-password'
+    | '/verify-email'
     | '/callback/google'
     | '/callback/google-complete'
     | '/callback/steam'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/register'
     | '/reset-password'
+    | '/verify-email'
     | '/callback/google'
     | '/callback/google-complete'
     | '/callback/steam'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/register'
     | '/reset-password'
+    | '/verify-email'
     | '/callback/google'
     | '/callback/google-complete'
     | '/callback/steam'
@@ -167,6 +179,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  VerifyEmailRoute: typeof VerifyEmailRoute
   CallbackGoogleRoute: typeof CallbackGoogleRoute
   CallbackGoogleCompleteRoute: typeof CallbackGoogleCompleteRoute
   CallbackSteamRoute: typeof CallbackSteamRoute
@@ -175,6 +188,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -263,6 +283,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  VerifyEmailRoute: VerifyEmailRoute,
   CallbackGoogleRoute: CallbackGoogleRoute,
   CallbackGoogleCompleteRoute: CallbackGoogleCompleteRoute,
   CallbackSteamRoute: CallbackSteamRoute,
