@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react"
+import { useNavigate } from "@tanstack/react-router"
 import { LoaderCircle } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -7,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { UserAvatar } from "@/components/user-avatar"
-import { api } from "@/api/api"
+import { api, baseUrl } from "@/api/api"
 import { getErrorMessage } from "@/lib/api-errors"
 import { useAuth } from "@/lib/auth"
 import {
@@ -16,7 +17,15 @@ import {
   type ConsentInput,
   type ConsentType,
 } from "@/lib/consent"
+import type { ProviderConnection } from "@/lib/oauth-state"
 import { Route as ProfileRoute } from "@/routes/profile"
+
+type ProviderId = "google" | "steam"
+
+const PROVIDERS: { id: ProviderId; label: string }[] = [
+  { id: "google", label: "Google" },
+  { id: "steam", label: "Steam" },
+]
 
 interface ConsentToggleCopy {
   label: string
@@ -41,6 +50,7 @@ const DISPLAY_NAME_MAX_LENGTH = 100
 export function ProfilePage() {
   const auth = useAuth()
   const search = ProfileRoute.useSearch()
+  const navigate = useNavigate()
   const privacySectionRef = useRef<HTMLDivElement>(null)
   const [showConfirm, setShowConfirm] = useState(false)
   const [confirmEmail, setConfirmEmail] = useState("")
@@ -49,10 +59,40 @@ export function ProfilePage() {
     useState<ConsentType | null>(null)
   const [displayName, setDisplayName] = useState(auth.displayName ?? "")
   const [isSavingDisplayName, setIsSavingDisplayName] = useState(false)
+  const [connections, setConnections] = useState<ProviderConnection[] | null>(
+    null
+  )
+  const [connectingProvider, setConnectingProvider] =
+    useState<ProviderId | null>(null)
 
   useEffect(() => {
     setDisplayName(auth.displayName ?? "")
   }, [auth.displayName])
+
+  useEffect(() => {
+    let cancelled = false
+    api
+      .get("auth/me/connections")
+      .json<ProviderConnection[]>()
+      .then((list) => {
+        if (!cancelled) setConnections(list)
+      })
+      .catch(() => {
+        // Show an empty list rather than blocking the rest of the page; the
+        // user can refresh to retry. Avoids a noisy toast on transient errors.
+        if (!cancelled) setConnections([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!search.linked) return
+    const label = search.linked === "google" ? "Google" : "Steam"
+    toast.success(`Linked your ${label} account.`)
+    navigate({ to: "/profile", search: {}, replace: true })
+  }, [search.linked, navigate])
 
   const stale = hasStaleConsent(auth.consents)
   const showStaleBanner = stale || search.reason === "consent-stale"
@@ -106,6 +146,29 @@ export function ProfilePage() {
       toast.error(message)
     } finally {
       setIsDeleting(false)
+    }
+  }
+
+  async function handleConnect(provider: ProviderId) {
+    setConnectingProvider(provider)
+    try {
+      if (provider === "steam") {
+        // Steam's authorize endpoint 307s straight to Steam's OpenID; navigate
+        // there directly to keep the redirect chain server-driven.
+        window.location.href = `${baseUrl}/auth/steam/associate/authorize`
+        return
+      }
+      const res = await api
+        .get(`auth/${provider}/associate/authorize`)
+        .json<{ authorization_url: string }>()
+      window.location.href = res.authorization_url
+    } catch (error) {
+      const message = await getErrorMessage(
+        error,
+        `Failed to start linking ${provider}`
+      )
+      toast.error(message)
+      setConnectingProvider(null)
     }
   }
 
@@ -247,6 +310,65 @@ export function ProfilePage() {
                 Learn more
               </a>
             </p>
+          </div>
+
+          <div
+            className="grid gap-3 border-t pt-4"
+            data-testid="connections-section"
+          >
+            <h3 className="text-sm font-semibold">Connected accounts</h3>
+            {connections === null ? (
+              <p className="text-muted-foreground flex items-center gap-2 text-xs">
+                <LoaderCircle className="size-3 animate-spin" />
+                Loading…
+              </p>
+            ) : (
+              PROVIDERS.map(({ id, label }) => {
+                const linked = connections.find((c) => c.provider === id)
+                const isConnecting = connectingProvider === id
+                return (
+                  <div
+                    key={id}
+                    className="flex items-center justify-between gap-3"
+                  >
+                    <div className="grid gap-0.5">
+                      <span className="text-sm font-medium">{label}</span>
+                      {linked ? (
+                        <span className="text-muted-foreground text-xs">
+                          Connected
+                          {(linked.account_email ?? linked.account_id) && (
+                            <>
+                              {" as "}
+                              <span className="font-mono">
+                                {linked.account_email ?? linked.account_id}
+                              </span>
+                            </>
+                          )}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">
+                          Not connected
+                        </span>
+                      )}
+                    </div>
+                    {!linked && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleConnect(id)}
+                        disabled={isConnecting}
+                      >
+                        Connect
+                        {isConnecting && (
+                          <LoaderCircle className="animate-spin" />
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                )
+              })
+            )}
           </div>
 
           <div className="border-destructive/30 bg-destructive/5 rounded-md border p-4">
