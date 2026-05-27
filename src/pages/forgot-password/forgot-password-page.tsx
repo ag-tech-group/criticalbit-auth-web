@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link } from "@tanstack/react-router"
+import { Link, useSearch } from "@tanstack/react-router"
 import { LoaderCircle } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -17,7 +17,8 @@ import { api } from "@/api/api"
 import { getErrorMessage } from "@/lib/api-errors"
 
 export function ForgotPasswordPage() {
-  const [email, setEmail] = useState("")
+  const search = useSearch({ from: "/forgot-password" })
+  const [email, setEmail] = useState((search as { email?: string }).email ?? "")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 

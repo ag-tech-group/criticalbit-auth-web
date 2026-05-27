@@ -20,25 +20,24 @@ const unauthContext = {
   },
 }
 
-describe("LoginPage", () => {
-  it("renders the sign in form", async () => {
+describe("ForgotPasswordPage", () => {
+  it("starts with an empty email when no ?email= is supplied", async () => {
     await renderWithFileRoutes(<></>, {
-      initialLocation: "/login",
+      initialLocation: "/forgot-password",
       routerContext: unauthContext,
     })
-    expect(
-      screen.getByText("Sign in", { selector: "[data-slot='card-title']" })
-    ).toBeInTheDocument()
-    expect(screen.getByLabelText("Email")).toBeInTheDocument()
-    expect(screen.getByLabelText("Password")).toBeInTheDocument()
-    expect(screen.getByText("Sign in with Google")).toBeInTheDocument()
+
+    const input = await screen.findByLabelText<HTMLInputElement>("Email")
+    expect(input.value).toBe("")
   })
 
-  it("has a link to register", async () => {
+  it("prefills email from ?email= for the Set-a-password flow", async () => {
     await renderWithFileRoutes(<></>, {
-      initialLocation: "/login",
+      initialLocation: "/forgot-password?email=player%40example.com",
       routerContext: unauthContext,
     })
-    expect(screen.getByText("Sign up")).toBeInTheDocument()
+
+    const input = await screen.findByLabelText<HTMLInputElement>("Email")
+    expect(input.value).toBe("player@example.com")
   })
 })

@@ -26,6 +26,7 @@ interface AuthContextValue {
   displayName: string | null
   avatarUrl: string | null
   tosAcceptedAt: string | null
+  hasUsablePassword: boolean
   consents: ConsentsResponse | null
   login: (email: string) => void
   logout: () => Promise<void>
@@ -46,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [displayName, setDisplayName] = useState<string | null>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [tosAcceptedAt, setTosAcceptedAt] = useState<string | null>(null)
+  const [hasUsablePassword, setHasUsablePassword] = useState(false)
   const [consents, setConsentsState] = useState<ConsentsResponse | null>(null)
 
   const setConsents = useCallback((next: ConsentsResponse) => {
@@ -61,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setDisplayName(null)
     setTosAcceptedAt(null)
     setAvatarUrl(null)
+    setHasUsablePassword(false)
     setConsentsState(null)
     clearCachedConsents()
     resetAnalytics()
@@ -90,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         display_name: string | null
         avatar_url: string | null
         tos_accepted_at: string | null
+        has_usable_password?: boolean
       }>()
       setIsAuthenticated(true)
       setEmail(user.email)
@@ -97,6 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setDisplayName(user.display_name)
       setAvatarUrl(user.avatar_url)
       setTosAcceptedAt(user.tos_accepted_at)
+      setHasUsablePassword(user.has_usable_password ?? false)
       // Steam OAuth users start with no email until they pass /accept-terms;
       // don't cache "null" as a string and don't leave a stale value behind.
       if (user.email) {
@@ -140,6 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       displayName,
       avatarUrl,
       tosAcceptedAt,
+      hasUsablePassword,
       consents,
       login,
       logout,
@@ -154,6 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       displayName,
       avatarUrl,
       tosAcceptedAt,
+      hasUsablePassword,
       consents,
       login,
       logout,
