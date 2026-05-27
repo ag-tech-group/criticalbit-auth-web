@@ -44,26 +44,19 @@ export function LoginPage() {
     }
   }
 
-  async function handleGoogleLogin() {
-    try {
-      if (redirect) localStorage.setItem("auth_redirect", redirect)
-      const res = await api
-        .get("auth/google/authorize")
-        .json<{ authorization_url: string }>()
-      window.location.href = res.authorization_url
-    } catch (error) {
-      const message = await getErrorMessage(
-        error,
-        "Failed to start Google sign-in"
-      )
-      toast.error(message)
-    }
+  function handleGoogleLogin() {
+    if (redirect) localStorage.setItem("auth_redirect", redirect)
+    // The authorize endpoint 302s to accounts.google.com in production.
+    // Fetching it would follow the redirect via fetch, which the browser
+    // blocks because accounts.google.com isn't in our CSP connect-src.
+    // Direct navigation sidesteps connect-src entirely.
+    window.location.href = `${baseUrl}/auth/google/authorize`
   }
 
   function handleSteamLogin() {
     if (redirect) localStorage.setItem("auth_redirect", redirect)
-    // In production, the authorize endpoint returns a 307 redirect to Steam,
-    // so we navigate directly instead of fetching (avoids CSP issues).
+    // Same reasoning as handleGoogleLogin: the authorize endpoint 307s to
+    // Steam's OpenID, so we navigate directly to avoid a CSP-blocked fetch.
     window.location.href = `${baseUrl}/auth/steam/authorize`
   }
 

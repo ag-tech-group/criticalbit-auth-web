@@ -165,27 +165,14 @@ export function ProfilePage() {
     }
   }
 
-  async function handleConnect(provider: ProviderId) {
+  function handleConnect(provider: ProviderId) {
     setConnectingProvider(provider)
-    try {
-      if (provider === "steam") {
-        // Steam's authorize endpoint 307s straight to Steam's OpenID; navigate
-        // there directly to keep the redirect chain server-driven.
-        window.location.href = `${baseUrl}/auth/steam/associate/authorize`
-        return
-      }
-      const res = await api
-        .get(`auth/${provider}/associate/authorize`)
-        .json<{ authorization_url: string }>()
-      window.location.href = res.authorization_url
-    } catch (error) {
-      const message = await getErrorMessage(
-        error,
-        `Failed to start linking ${provider}`
-      )
-      toast.error(message)
-      setConnectingProvider(null)
-    }
+    // Both providers' associate-authorize endpoints 302 to the provider in
+    // production. Fetching first would let the browser follow the redirect
+    // via fetch — CSP connect-src blocks the cross-origin call to
+    // accounts.google.com / steamcommunity.com. Direct navigation
+    // sidesteps connect-src entirely.
+    window.location.href = `${baseUrl}/auth/${provider}/associate/authorize`
   }
 
   async function handleDisconnect(provider: ProviderId) {
