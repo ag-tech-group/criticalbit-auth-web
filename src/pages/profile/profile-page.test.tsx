@@ -212,6 +212,70 @@ describe("ProfilePage display name", () => {
   })
 })
 
+describe("ProfilePage display name nudge", () => {
+  it("shows the nudge banner when display_name is null", async () => {
+    window.sessionStorage.clear()
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: null,
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+    })
+    server.use(me.handler, consentsHandler)
+
+    await renderWithFileRoutes(<></>, { initialLocation: "/profile" })
+
+    expect(await screen.findByTestId("display-name-nudge")).toBeInTheDocument()
+  })
+
+  it("hides the nudge banner when display_name is set", async () => {
+    window.sessionStorage.clear()
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: "ZeroEmpires",
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+    })
+    server.use(me.handler, consentsHandler)
+
+    await renderWithFileRoutes(<></>, { initialLocation: "/profile" })
+
+    // Wait for the page to settle by finding a known element
+    await screen.findByLabelText("Display name")
+    expect(screen.queryByTestId("display-name-nudge")).not.toBeInTheDocument()
+  })
+
+  it("dismisses the nudge for the session when X is clicked", async () => {
+    window.sessionStorage.clear()
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: null,
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+    })
+    server.use(me.handler, consentsHandler)
+
+    await renderWithFileRoutes(<></>, { initialLocation: "/profile" })
+
+    const nudge = await screen.findByTestId("display-name-nudge")
+    expect(nudge).toBeInTheDocument()
+
+    const dismissBtn = screen.getByRole("button", {
+      name: /dismiss display name suggestion/i,
+    })
+    const user = userEvent.setup()
+    await user.click(dismissBtn)
+
+    expect(screen.queryByTestId("display-name-nudge")).not.toBeInTheDocument()
+    expect(
+      window.sessionStorage.getItem("cb_display_name_nudge_dismissed")
+    ).toBe("1")
+  })
+})
+
 describe("ProfilePage connected accounts", () => {
   it("shows Connect buttons for unlinked providers and the linked status for linked ones", async () => {
     const me = authMeHandler({
