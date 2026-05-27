@@ -19,6 +19,8 @@ import { getErrorMessage } from "@/lib/api-errors"
 import { useAuth } from "@/lib/auth"
 import { submitConsents, type ConsentInput } from "@/lib/consent"
 
+const DISPLAY_NAME_MAX_LENGTH = 100
+
 export function RegisterPage() {
   const auth = useAuth()
   const navigate = useNavigate()
@@ -27,6 +29,7 @@ export function RegisterPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [displayName, setDisplayName] = useState("")
   const [tosAccepted, setTosAccepted] = useState(false)
   const [analyticsConsent, setAnalyticsConsent] = useState(false)
   const [sessionReplayConsent, setSessionReplayConsent] = useState(false)
@@ -70,6 +73,17 @@ export function RegisterPage() {
         await submitConsents(consents)
       } catch {
         // Swallow — user is signed up; they'll be prompted again on profile.
+      }
+      const trimmedDisplayName = displayName.trim()
+      if (trimmedDisplayName) {
+        try {
+          await api.patch("auth/me", {
+            json: { display_name: trimmedDisplayName },
+          })
+        } catch {
+          // Swallow — user is signed up; the /profile nudge banner will
+          // prompt them to set it later if this PATCH failed.
+        }
       }
       // Refresh the AuthContext (reads /auth/me with the new cookie) before
       // navigating, so the destination's beforeLoad sees isAuthenticated=true.
@@ -134,6 +148,23 @@ export function RegisterPage() {
                 required
                 minLength={8}
                 autoComplete="new-password"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="displayName">
+                Display name{" "}
+                <span className="text-muted-foreground text-xs font-normal">
+                  (optional)
+                </span>
+              </Label>
+              <Input
+                id="displayName"
+                type="text"
+                placeholder="How you'll appear across criticalbit.gg"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                maxLength={DISPLAY_NAME_MAX_LENGTH}
+                autoComplete="nickname"
               />
             </div>
             <label className="flex cursor-pointer items-start gap-3">

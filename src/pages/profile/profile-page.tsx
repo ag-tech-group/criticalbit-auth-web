@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { LoaderCircle } from "lucide-react"
+import { LoaderCircle, X } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,6 +19,8 @@ import {
 } from "@/lib/consent"
 import type { ProviderConnection } from "@/lib/oauth-state"
 import { Route as ProfileRoute } from "@/routes/profile"
+
+const DISPLAY_NAME_NUDGE_KEY = "cb_display_name_nudge_dismissed"
 
 type ProviderId = "google" | "steam"
 
@@ -81,6 +83,18 @@ export function ProfilePage() {
     message: string
     remediation: string[]
   } | null>(null)
+  const [nudgeDismissed, setNudgeDismissed] = useState(() =>
+    typeof window === "undefined"
+      ? false
+      : window.sessionStorage.getItem(DISPLAY_NAME_NUDGE_KEY) === "1"
+  )
+
+  const showDisplayNameNudge = !auth.displayName && !nudgeDismissed
+
+  function dismissNudge() {
+    window.sessionStorage.setItem(DISPLAY_NAME_NUDGE_KEY, "1")
+    setNudgeDismissed(true)
+  }
 
   useEffect(() => {
     setDisplayName(auth.displayName ?? "")
@@ -270,6 +284,25 @@ export function ProfilePage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-6">
+          {showDisplayNameNudge && (
+            <div
+              className="border-primary/30 bg-primary/5 relative rounded-md border p-3 text-xs leading-relaxed"
+              data-testid="display-name-nudge"
+            >
+              <p className="text-muted-foreground pr-6">
+                You're showing up as your email across the site. Pick a display
+                name below to personalize your account.
+              </p>
+              <button
+                type="button"
+                aria-label="Dismiss display name suggestion"
+                onClick={dismissNudge}
+                className="text-muted-foreground hover:text-foreground absolute top-2 right-2 transition-colors"
+              >
+                <X className="size-3.5" />
+              </button>
+            </div>
+          )}
           <div className="grid gap-4">
             <div className="grid gap-1 text-sm">
               <span className="text-muted-foreground">Email</span>
