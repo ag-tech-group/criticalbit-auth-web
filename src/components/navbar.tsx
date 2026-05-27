@@ -1,4 +1,5 @@
 import { ChevronDown, ExternalLink, LogOut } from "lucide-react"
+import { useNavigate } from "@tanstack/react-router"
 import { BrandLockup } from "@/components/brand-lockup"
 import {
   DropdownMenu,
@@ -13,6 +14,7 @@ import { useAuth } from "@/lib/auth"
 
 export function Navbar() {
   const auth = useAuth()
+  const navigate = useNavigate()
 
   return (
     <nav className="border-border/50 bg-background/80 fixed top-0 z-50 w-full border-b backdrop-blur-sm">
@@ -49,7 +51,7 @@ export function Navbar() {
                 <DropdownMenuItem
                   onClick={async () => {
                     await auth.logout()
-                    window.location.href = "/login"
+                    await navigate({ to: "/login" })
                   }}
                 >
                   <LogOut className="size-4" />

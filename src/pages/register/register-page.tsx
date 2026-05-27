@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { LoaderCircle } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -16,9 +16,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { api } from "@/api/api"
 import { getErrorMessage } from "@/lib/api-errors"
+import { useAuth } from "@/lib/auth"
 import { submitConsents, type ConsentInput } from "@/lib/consent"
 
 export function RegisterPage() {
+  const auth = useAuth()
+  const navigate = useNavigate()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -66,7 +69,10 @@ export function RegisterPage() {
       } catch {
         // Swallow — user is signed up; they'll be prompted again on profile.
       }
-      window.location.href = "/profile"
+      // Refresh the AuthContext (reads /auth/me with the new cookie) before
+      // navigating, so /profile's beforeLoad sees isAuthenticated=true.
+      await auth.checkAuth()
+      await navigate({ to: "/profile" })
     } catch (error) {
       const message = await getErrorMessage(error, "Registration failed")
       toast.error(message)

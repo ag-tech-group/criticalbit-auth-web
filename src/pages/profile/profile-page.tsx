@@ -156,7 +156,11 @@ export function ProfilePage() {
     try {
       await api.delete("auth/me")
       toast.success("Account deleted.")
-      window.location.href = "/login"
+      // Clear local auth state before navigating — /login's beforeLoad
+      // redirects authenticated users to /profile, so without this the
+      // user would bounce back to the page they just deleted from.
+      await auth.logout()
+      await navigate({ to: "/login" })
     } catch (error) {
       const message = await getErrorMessage(error, "Failed to delete account")
       toast.error(message)

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link, useSearch } from "@tanstack/react-router"
+import { Link, useNavigate, useSearch } from "@tanstack/react-router"
 import { LoaderCircle } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -15,8 +15,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { api, baseUrl } from "@/api/api"
 import { getErrorMessage } from "@/lib/api-errors"
+import { useAuth } from "@/lib/auth"
 
 export function LoginPage() {
+  const auth = useAuth()
+  const navigate = useNavigate()
   const search = useSearch({ from: "/login" })
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -33,9 +36,18 @@ export function LoginPage() {
         body: new URLSearchParams({ username: email, password }),
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       })
-      // Hard redirect — reloads the page so AuthProvider picks up the new cookie cleanly.
-      // Client-side navigate has a race condition with the onUnauthorized handler.
-      window.location.href = redirect ?? "/profile"
+      const target = redirect ?? "/profile"
+      if (target.startsWith("http")) {
+        // Cross-origin redirect (e.g. from a consumer app like
+        // hera-streamer-…) — must be a hard nav since useNavigate only
+        // handles in-app routes.
+        window.location.href = target
+        return
+      }
+      // Refresh the AuthContext (reads /auth/me with the new cookie) before
+      // navigating, so /profile's beforeLoad sees isAuthenticated=true.
+      await auth.checkAuth()
+      await navigate({ to: target })
     } catch (error) {
       const message = await getErrorMessage(error, "Login failed")
       toast.error(message)
