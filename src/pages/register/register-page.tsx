@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link, useNavigate } from "@tanstack/react-router"
+import { Link, useNavigate, useSearch } from "@tanstack/react-router"
 import { LoaderCircle } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -22,6 +22,8 @@ import { submitConsents, type ConsentInput } from "@/lib/consent"
 export function RegisterPage() {
   const auth = useAuth()
   const navigate = useNavigate()
+  const search = useSearch({ from: "/register" })
+  const redirect = (search as { redirect?: string }).redirect
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -70,9 +72,17 @@ export function RegisterPage() {
         // Swallow — user is signed up; they'll be prompted again on profile.
       }
       // Refresh the AuthContext (reads /auth/me with the new cookie) before
-      // navigating, so /profile's beforeLoad sees isAuthenticated=true.
+      // navigating, so the destination's beforeLoad sees isAuthenticated=true.
       await auth.checkAuth()
-      await navigate({ to: "/profile" })
+      const target = redirect ?? "/profile"
+      if (target.startsWith("http")) {
+        // Cross-origin redirect (e.g. from a consumer app like
+        // hera-streamer-…) — must be a hard nav since useNavigate only
+        // handles in-app routes.
+        window.location.href = target
+        return
+      }
+      await navigate({ to: target })
     } catch (error) {
       const message = await getErrorMessage(error, "Registration failed")
       toast.error(message)

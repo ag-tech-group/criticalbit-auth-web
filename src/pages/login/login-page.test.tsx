@@ -41,4 +41,19 @@ describe("LoginPage", () => {
     })
     expect(screen.getByText("Sign up")).toBeInTheDocument()
   })
+
+  it("preserves ?redirect= on the Sign up link", async () => {
+    await renderWithFileRoutes(<></>, {
+      initialLocation:
+        "/login?redirect=https%3A%2F%2Fhera-streamer-invitational-2026.criticalbit.gg%2F",
+      routerContext: unauthContext,
+    })
+    const link = await screen.findByRole("link", { name: "Sign up" })
+    // TanStack Router serializes search params alphabetically and re-encodes —
+    // the important thing is that the redirect target survives the hop, not
+    // the exact encoding.
+    expect(link.getAttribute("href")).toMatch(
+      /^\/register\?redirect=.*hera-streamer-invitational-2026\.criticalbit\.gg/
+    )
+  })
 })

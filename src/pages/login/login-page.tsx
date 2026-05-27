@@ -177,7 +177,11 @@ export function LoginPage() {
         <CardFooter className="justify-center">
           <p className="text-muted-foreground text-sm">
             Don't have an account?{" "}
-            <Link to="/register" className="text-primary underline">
+            <Link
+              to="/register"
+              search={redirect ? { redirect } : {}}
+              className="text-primary underline"
+            >
               Sign up
             </Link>
           </p>
