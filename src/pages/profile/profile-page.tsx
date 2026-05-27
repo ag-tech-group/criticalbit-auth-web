@@ -10,6 +10,11 @@ import { Label } from "@/components/ui/label"
 import { UserAvatar } from "@/components/user-avatar"
 import { api, baseUrl } from "@/api/api"
 import { getErrorMessage } from "@/lib/api-errors"
+import {
+  associateErrorMessage,
+  providerLabel,
+  type AssociateProvider,
+} from "@/lib/associate-errors"
 import { useAuth } from "@/lib/auth"
 import {
   hasStaleConsent,
@@ -83,6 +88,13 @@ export function ProfilePage() {
     message: string
     remediation: string[]
   } | null>(null)
+  // Captured from the URL on mount and kept in state so the alert
+  // survives the navigate({ replace: true }) call that scrubs the
+  // ?associate_error= param from the address bar.
+  const [associateError, setAssociateError] = useState<{
+    provider: AssociateProvider
+    message: string
+  } | null>(null)
   const [nudgeDismissed, setNudgeDismissed] = useState(() =>
     typeof window === "undefined"
       ? false
@@ -119,10 +131,22 @@ export function ProfilePage() {
 
   useEffect(() => {
     if (!search.linked) return
-    const label = search.linked === "google" ? "Google" : "Steam"
+    const label = providerLabel(search.linked)
     toast.success(`Linked your ${label} account.`)
     navigate({ to: "/profile", search: {}, replace: true })
   }, [search.linked, navigate])
+
+  useEffect(() => {
+    if (!search.associate_error || !search.associate_provider) return
+    setAssociateError({
+      provider: search.associate_provider,
+      message: associateErrorMessage(
+        search.associate_error,
+        search.associate_provider
+      ),
+    })
+    navigate({ to: "/profile", search: {}, replace: true })
+  }, [search.associate_error, search.associate_provider, navigate])
 
   const stale = hasStaleConsent(auth.consents)
   const showStaleBanner = stale || search.reason === "consent-stale"
@@ -410,6 +434,25 @@ export function ProfilePage() {
             data-testid="connections-section"
           >
             <h3 className="text-sm font-semibold">Connected accounts</h3>
+            {associateError && (
+              <div
+                role="alert"
+                className="border-destructive/40 bg-destructive/10 relative rounded-md border p-3 pr-8 text-xs leading-relaxed"
+                data-testid="associate-error"
+              >
+                <p className="text-destructive-foreground">
+                  {associateError.message}
+                </p>
+                <button
+                  type="button"
+                  aria-label="Dismiss error"
+                  onClick={() => setAssociateError(null)}
+                  className="text-muted-foreground hover:text-foreground absolute top-2 right-2 transition-colors"
+                >
+                  <X className="size-3.5" />
+                </button>
+              </div>
+            )}
             {connections === null ? (
               <p className="text-muted-foreground flex items-center gap-2 text-xs">
                 <LoaderCircle className="size-3 animate-spin" />

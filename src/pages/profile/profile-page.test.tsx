@@ -364,6 +364,108 @@ describe("ProfilePage connected accounts", () => {
     )
   })
 
+  it("renders the associate error alert when the API redirects with ?associate_error", async () => {
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: null,
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+    })
+    server.use(
+      me.handler,
+      consentsHandler,
+      http.get("*/auth/me/connections", () => HttpResponse.json([]))
+    )
+
+    const { history } = await renderWithFileRoutes(<></>, {
+      initialLocation:
+        "/profile?associate_error=oauth_account_already_linked&associate_provider=steam",
+    })
+
+    const alert = await screen.findByTestId("associate-error")
+    expect(alert).toHaveTextContent(
+      /this steam account is already linked to another criticalbit account/i
+    )
+    // The error params should be scrubbed from the URL so a refresh
+    // doesn't re-trigger the alert.
+    await waitFor(() =>
+      expect(history.location.search).not.toContain("associate_error")
+    )
+  })
+
+  it("falls back to a generic message for an unknown associate_error code", async () => {
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: null,
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+    })
+    server.use(
+      me.handler,
+      consentsHandler,
+      http.get("*/auth/me/connections", () => HttpResponse.json([]))
+    )
+
+    await renderWithFileRoutes(<></>, {
+      initialLocation:
+        "/profile?associate_error=something_new&associate_provider=google",
+    })
+
+    const alert = await screen.findByTestId("associate-error")
+    expect(alert).toHaveTextContent(/linking your google account failed/i)
+  })
+
+  it("dismisses the associate error alert when the user clicks X", async () => {
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: null,
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+    })
+    server.use(
+      me.handler,
+      consentsHandler,
+      http.get("*/auth/me/connections", () => HttpResponse.json([]))
+    )
+
+    await renderWithFileRoutes(<></>, {
+      initialLocation:
+        "/profile?associate_error=oauth_state_expired&associate_provider=steam",
+    })
+
+    const alert = await screen.findByTestId("associate-error")
+    const dismiss = screen.getByRole("button", { name: /dismiss error/i })
+    const user = userEvent.setup()
+    await user.click(dismiss)
+
+    await waitFor(() => expect(alert).not.toBeInTheDocument())
+  })
+
+  it("ignores ?associate_error= when the provider is missing or unknown", async () => {
+    const me = authMeHandler({
+      id: "u-1",
+      email: "player@example.com",
+      display_name: null,
+      avatar_url: null,
+      tos_accepted_at: "2026-01-01T00:00:00Z",
+    })
+    server.use(
+      me.handler,
+      consentsHandler,
+      http.get("*/auth/me/connections", () => HttpResponse.json([]))
+    )
+
+    await renderWithFileRoutes(<></>, {
+      initialLocation: "/profile?associate_error=oauth_state_expired",
+    })
+
+    await screen.findByText("Connected accounts")
+    expect(screen.queryByTestId("associate-error")).not.toBeInTheDocument()
+  })
+
   it("disables Disconnect with a helper hint when removing it would strand the user", async () => {
     const me = authMeHandler({
       id: "u-1",

@@ -1,23 +1,10 @@
 import { useEffect, useRef, useState } from "react"
 import { baseUrl } from "@/api/api"
+import { associateErrorMessage } from "@/lib/associate-errors"
 import { readPurposeFromStateParam, type OAuthPurpose } from "@/lib/oauth-state"
 
 const OAUTH_USER_ALREADY_EXISTS_MESSAGE =
   "An unverified account already exists for this email. Sign in with your password, verify your email, then link Google from your profile."
-
-const ASSOCIATE_ERROR_MESSAGES: Record<string, string> = {
-  oauth_account_already_linked:
-    "This Google account is already linked to another criticalbit account. Unlink it there first.",
-  oauth_state_invalid:
-    "Your link session is invalid. Please return to your profile and try again.",
-  oauth_state_expired:
-    "Your link session expired. Please return to your profile and try again.",
-  oauth_csrf_mismatch:
-    "Your link session expired. Please return to your profile and try again.",
-  oauth_state_user_mismatch:
-    "Something went wrong linking your account. Please try again.",
-  oauth_verify_failed: "Google rejected the response. Please try again.",
-}
 
 async function readDetail(res: Response): Promise<unknown> {
   try {
@@ -75,10 +62,7 @@ export function GoogleCallbackPage() {
       if (!res.ok) {
         const code = detailCode(await readDetail(res))
         if (purpose === "associate") {
-          setError(
-            (code && ASSOCIATE_ERROR_MESSAGES[code]) ??
-              "Linking your Google account failed. Please try again."
-          )
+          setError(associateErrorMessage(code ?? "", "google"))
         } else if (code === "OAUTH_USER_ALREADY_EXISTS") {
           setError(OAUTH_USER_ALREADY_EXISTS_MESSAGE)
         } else {
