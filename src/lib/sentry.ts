@@ -47,6 +47,35 @@ export function initSentry(router: SentryRouter) {
     replaysOnErrorSampleRate: 1.0,
 
     enableLogs: true,
+
+    // Drop noise that's never actionable, so it doesn't bury real errors or
+    // burn quota: intentional fetch cancellation plus errors injected by the
+    // user's environment rather than our code.
+    ignoreErrors: [
+      // Intentional fetch/query cancellation.
+      "AbortError",
+      "The user aborted a request",
+      "signal is aborted without reason",
+      // Benign layout-loop notices the browser emits under load.
+      "ResizeObserver loop limit exceeded",
+      "ResizeObserver loop completed with undelivered notifications",
+      // Translating proxies (Yandex/Google Translate) rewrite the DOM and trip the History API.
+      "Failed to execute 'replaceState' on 'History'",
+      // Sandboxed-iframe / privacy-mode storage access denied.
+      "The operation is insecure",
+    ],
+    denyUrls: [
+      /^chrome-extension:\/\//i,
+      /^moz-extension:\/\//i,
+      /^safari-web-extension:\/\//i,
+    ],
+    beforeSend(event, hint) {
+      // Intentional cancellation (a query/fetch aborted mid-flight) is expected
+      // noise — never report it, however the SDK wrapped it.
+      const exception = hint.originalException as { name?: string } | undefined
+      if (exception?.name === "AbortError") return null
+      return event
+    },
   })
 
   initialized = true
