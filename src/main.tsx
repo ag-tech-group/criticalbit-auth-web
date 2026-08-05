@@ -8,7 +8,6 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { reactErrorHandler } from "@sentry/react"
 import { toast } from "sonner"
-// @ts-expect-error -- fontsource CSS-only import, no types
 import "@fontsource-variable/geist"
 import { BrandLockup } from "./components/brand-lockup"
 import { ErrorBoundary } from "./components/error-boundary"
