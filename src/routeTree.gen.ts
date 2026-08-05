@@ -9,49 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VerifyEmailRouteImport } from './routes/verify-email'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as AcceptTermsRouteImport } from './routes/accept-terms'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as CallbackSteamCompleteRouteImport } from './routes/callback/steam-complete'
-import { Route as CallbackSteamAssociateCompleteRouteImport } from './routes/callback/steam-associate-complete'
-import { Route as CallbackSteamRouteImport } from './routes/callback/steam'
-import { Route as CallbackGoogleCompleteRouteImport } from './routes/callback/google-complete'
-import { Route as CallbackGoogleAssociateCompleteRouteImport } from './routes/callback/google-associate-complete'
+import { Route as AcceptTermsRouteImport } from './routes/accept-terms'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as CallbackGoogleRouteImport } from './routes/callback/google'
+import { Route as CallbackGoogleAssociateCompleteRouteImport } from './routes/callback/google-associate-complete'
+import { Route as CallbackGoogleCompleteRouteImport } from './routes/callback/google-complete'
+import { Route as CallbackSteamRouteImport } from './routes/callback/steam'
+import { Route as CallbackSteamAssociateCompleteRouteImport } from './routes/callback/steam-associate-complete'
+import { Route as CallbackSteamCompleteRouteImport } from './routes/callback/steam-complete'
 
-const VerifyEmailRoute = VerifyEmailRouteImport.update({
-  id: '/verify-email',
-  path: '/verify-email',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AcceptTermsRoute = AcceptTermsRouteImport.update({
@@ -59,30 +34,39 @@ const AcceptTermsRoute = AcceptTermsRouteImport.update({
   path: '/accept-terms',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CallbackSteamCompleteRoute = CallbackSteamCompleteRouteImport.update({
-  id: '/callback/steam-complete',
-  path: '/callback/steam-complete',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CallbackSteamAssociateCompleteRoute =
-  CallbackSteamAssociateCompleteRouteImport.update({
-    id: '/callback/steam-associate-complete',
-    path: '/callback/steam-associate-complete',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const CallbackSteamRoute = CallbackSteamRouteImport.update({
-  id: '/callback/steam',
-  path: '/callback/steam',
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CallbackGoogleCompleteRoute = CallbackGoogleCompleteRouteImport.update({
-  id: '/callback/google-complete',
-  path: '/callback/google-complete',
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CallbackGoogleRoute = CallbackGoogleRouteImport.update({
+  id: '/callback/google',
+  path: '/callback/google',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CallbackGoogleAssociateCompleteRoute =
@@ -91,9 +75,25 @@ const CallbackGoogleAssociateCompleteRoute =
     path: '/callback/google-associate-complete',
     getParentRoute: () => rootRouteImport,
   } as any)
-const CallbackGoogleRoute = CallbackGoogleRouteImport.update({
-  id: '/callback/google',
-  path: '/callback/google',
+const CallbackGoogleCompleteRoute = CallbackGoogleCompleteRouteImport.update({
+  id: '/callback/google-complete',
+  path: '/callback/google-complete',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CallbackSteamRoute = CallbackSteamRouteImport.update({
+  id: '/callback/steam',
+  path: '/callback/steam',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CallbackSteamAssociateCompleteRoute =
+  CallbackSteamAssociateCompleteRouteImport.update({
+    id: '/callback/steam-associate-complete',
+    path: '/callback/steam-associate-complete',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const CallbackSteamCompleteRoute = CallbackSteamCompleteRouteImport.update({
+  id: '/callback/steam-complete',
+  path: '/callback/steam-complete',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -216,46 +216,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/verify-email': {
-      id: '/verify-email'
-      path: '/verify-email'
-      fullPath: '/verify-email'
-      preLoaderRoute: typeof VerifyEmailRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/accept-terms': {
@@ -265,39 +230,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AcceptTermsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/callback/steam-complete': {
-      id: '/callback/steam-complete'
-      path: '/callback/steam-complete'
-      fullPath: '/callback/steam-complete'
-      preLoaderRoute: typeof CallbackSteamCompleteRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/callback/steam-associate-complete': {
-      id: '/callback/steam-associate-complete'
-      path: '/callback/steam-associate-complete'
-      fullPath: '/callback/steam-associate-complete'
-      preLoaderRoute: typeof CallbackSteamAssociateCompleteRouteImport
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/callback/steam': {
-      id: '/callback/steam'
-      path: '/callback/steam'
-      fullPath: '/callback/steam'
-      preLoaderRoute: typeof CallbackSteamRouteImport
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/callback/google-complete': {
-      id: '/callback/google-complete'
-      path: '/callback/google-complete'
-      fullPath: '/callback/google-complete'
-      preLoaderRoute: typeof CallbackGoogleCompleteRouteImport
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/callback/google': {
+      id: '/callback/google'
+      path: '/callback/google'
+      fullPath: '/callback/google'
+      preLoaderRoute: typeof CallbackGoogleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/callback/google-associate-complete': {
@@ -307,11 +286,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CallbackGoogleAssociateCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/callback/google': {
-      id: '/callback/google'
-      path: '/callback/google'
-      fullPath: '/callback/google'
-      preLoaderRoute: typeof CallbackGoogleRouteImport
+    '/callback/google-complete': {
+      id: '/callback/google-complete'
+      path: '/callback/google-complete'
+      fullPath: '/callback/google-complete'
+      preLoaderRoute: typeof CallbackGoogleCompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/callback/steam': {
+      id: '/callback/steam'
+      path: '/callback/steam'
+      fullPath: '/callback/steam'
+      preLoaderRoute: typeof CallbackSteamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/callback/steam-associate-complete': {
+      id: '/callback/steam-associate-complete'
+      path: '/callback/steam-associate-complete'
+      fullPath: '/callback/steam-associate-complete'
+      preLoaderRoute: typeof CallbackSteamAssociateCompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/callback/steam-complete': {
+      id: '/callback/steam-complete'
+      path: '/callback/steam-complete'
+      fullPath: '/callback/steam-complete'
+      preLoaderRoute: typeof CallbackSteamCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
