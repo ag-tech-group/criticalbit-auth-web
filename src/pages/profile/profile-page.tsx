@@ -109,6 +109,10 @@ export function ProfilePage() {
   }
 
   useEffect(() => {
+    // Seeds the editable field from context and re-seeds when the source
+    // changes. A controlled input has to hold its own draft, so this sync is
+    // the point rather than an accident; it settles in one extra render.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDisplayName(auth.displayName ?? "")
   }, [auth.displayName])
 
@@ -126,6 +130,9 @@ export function ProfilePage() {
   }, [])
 
   useEffect(() => {
+    // refreshConnections awaits the request before any setState, so its
+    // updates don't run synchronously within the effect body.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void refreshConnections()
   }, [refreshConnections])
 
@@ -138,6 +145,10 @@ export function ProfilePage() {
 
   useEffect(() => {
     if (!search.associate_error || !search.associate_provider) return
+    // Surfaces an error carried in the URL, then clears the params via
+    // navigate() on the next line -- so the guard above stops matching and
+    // this runs once rather than cascading.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAssociateError({
       provider: search.associate_provider,
       message: associateErrorMessage(
@@ -214,6 +225,9 @@ export function ProfilePage() {
     // via fetch — CSP connect-src blocks the cross-origin call to
     // accounts.google.com / steamcommunity.com. Direct navigation
     // sidesteps connect-src entirely.
+    // Assigning location is the navigation itself, not a mutation of app
+    // state -- see the comment above for why a fetch can't be used here.
+    // eslint-disable-next-line react-hooks/immutability
     window.location.href = `${baseUrl}/auth/${provider}/associate/authorize`
   }
 
