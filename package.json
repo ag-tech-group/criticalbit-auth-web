@@ -29,7 +29,7 @@
     "@tanstack/react-router": "^1.170.41",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "ky": "^1.14.3",
+    "ky": "^2.2.0",
     "lucide-react": "^1.52.0",
     "posthog-js": "^1.436.1",
     "radix-ui": "^1.7.0",
